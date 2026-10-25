@@ -99,9 +99,18 @@ export interface Balcony {
   railing: { inset: number; height: number };
 }
 
+/** Budynek wokół mieszkania – tylko do otoczenia za oknami (założenia, nie z rzutu). */
+export interface Building {
+  /** Wysokość kondygnacji (od podłogi do podłogi). */
+  storeyHeight: number;
+  /** Numer piętra mieszkania (0 = parter). */
+  floor: number;
+}
+
 export interface Apartment {
   name: string;
   height: number;
+  building: Building;
   /** Wnętrze w świetle tynku. */
   interior: { x0: number; y0: number; x1: number; y1: number };
   walls: Wall[];

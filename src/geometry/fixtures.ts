@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import type { Apartment, Fixture, FixtureType, Variant } from '../data/types';
 import { inVariant } from '../core/plan';
+import { m } from '../core/units';
 import type { MaterialSet } from '../scene/materials';
 import { boxGeometry, mergeStatic, type PlanBox } from './box';
 
@@ -15,6 +16,15 @@ const PLATE: Record<Exclude<FixtureType, 'ceilingOutlet'>, [number, number, numb
 };
 
 const CABLE = 25; // długość przewodu z wypustu sufitowego
+const HOLDER = 6; // oprawka
+const BULB_RADIUS = 3;
+
+/** Położenie gołych żarówek na wypustach sufitowych (cm) – dla siatki i dla świateł wieczornych. */
+export function bulbPositions(ap: Apartment, variant: Variant): { x: number; y: number; z: number }[] {
+  return ap.fixtures
+    .filter((f) => f.type === 'ceilingOutlet' && inVariant(f, variant))
+    .map((f) => ({ x: f.x, y: f.y, z: f.z - CABLE - HOLDER - BULB_RADIUS }));
+}
 
 function plateBox(f: Fixture): PlanBox {
   const [w, h, t] = PLATE[f.type as keyof typeof PLATE];
@@ -39,23 +49,29 @@ export function buildFixtures(ap: Apartment, variant: Variant, mats: MaterialSet
   for (const f of ap.fixtures.filter((fx) => inVariant(fx, variant))) {
     if (f.type === 'ceilingOutlet') {
       cables.push({ x0: f.x - 0.4, x1: f.x + 0.4, y0: f.y - 0.4, y1: f.y + 0.4, z0: f.z - CABLE, z1: f.z });
-      plates.push({ x0: f.x - 2, x1: f.x + 2, y0: f.y - 2, y1: f.y + 2, z0: f.z - CABLE - 6, z1: f.z - CABLE });
+      plates.push({ x0: f.x - 2, x1: f.x + 2, y0: f.y - 2, y1: f.y + 2, z0: f.z - CABLE - HOLDER, z1: f.z - CABLE });
     } else {
       plates.push(plateBox(f));
     }
   }
 
+  const bulbs = bulbPositions(ap, variant).map((b) => {
+    const g = new THREE.SphereGeometry(m(BULB_RADIUS), 12, 8);
+    g.translate(m(b.x), m(b.z), m(b.y));
+    return g;
+  });
   const radiators = ap.radiators.map((r) => boxGeometry({ x0: r.x0, x1: r.x1, y0: r.y0, y1: r.y1, z0: r.bottom, z1: r.top }));
   const parts: [keyof MaterialSet, THREE.BufferGeometry[]][] = [
     ['fixture', plates.map(boxGeometry)],
     ['cable', cables.map(boxGeometry)],
     ['radiator', radiators],
+    ['bulb', bulbs],
   ];
   for (const [key, geos] of parts) {
     if (!geos.length) continue;
     const mesh = new THREE.Mesh(mergeStatic(geos), mats[key]);
     mesh.castShadow = key === 'radiator';
-    mesh.receiveShadow = true;
+    mesh.receiveShadow = key !== 'bulb';
     group.add(mesh);
   }
   return group;

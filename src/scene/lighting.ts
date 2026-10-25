@@ -1,42 +1,137 @@
 import * as THREE from 'three';
-import type { Apartment } from '../data/types';
+import { RGBELoader } from 'three/addons/loaders/RGBELoader.js';
+import { RectAreaLightUniformsLib } from 'three/addons/lights/RectAreaLightUniformsLib.js';
+import type { Apartment, Variant } from '../data/types';
+import { SKY_HDRI, type TextureRes } from '../data/materials';
+import { wallAxis } from '../core/plan';
 import { m } from '../core/units';
+import { bulbPositions } from '../geometry/fixtures';
+import type { MaterialSet } from './materials';
+
+export type TimeOfDay = 'day' | 'evening';
+
+/** Ustawienia pory dnia. Natężenia w jednostkach fizycznych three.js (cd, lx, nit). */
+const PRESETS: Record<TimeOfDay, {
+  exposure: number;
+  sun: number;
+  sky: number; // światło nieba wpadające przez przeszklenia (RectAreaLight)
+  skyColor: number;
+  fill: number; // rozproszone odbicia (HemisphereLight)
+  environment: number;
+  background: number;
+  bulbs: number; // cd na żarówkę
+  bulbGlow: number;
+}> = {
+  day: { exposure: 1.05, sun: 3.2, sky: 7, skyColor: 0xdde8f7, fill: 0.8, environment: 0.35, background: 1, bulbs: 0, bulbGlow: 0 },
+  evening: { exposure: 1, sun: 0, sky: 0.35, skyColor: 0x5d6f9c, fill: 0.15, environment: 0.04, background: 0.06, bulbs: 20, bulbGlow: 4 },
+};
+
+const BULB_COLOR = 0xffc58a; // ok. 2700 K
 
 /**
- * Oświetlenie tymczasowe (Etap 1): niebo + słońce z południa (+Y w rzucie = +z w scenie).
- * Pozycja słońca dla Warszawy w październiku, ok. 13:00 – wysokość ok. 27°.
+ * Światło dzienne i wieczorne:
+ * - niebo z HDRI (tło i odbicia), słońce z południa z cieniami,
+ * - prostokątne źródła w otworach drzwi balkonowych (światło nieba wpadające do środka),
+ * - wieczorem ciepłe gołe żarówki na wypustach sufitowych.
  */
-export function createDaylight(ap: Apartment, shadowMapSize: number): THREE.Group {
-  const group = new THREE.Group();
-  group.name = 'daylight';
+export class Lighting {
+  readonly group = new THREE.Group();
+  private readonly sun: THREE.DirectionalLight;
+  private readonly fill = new THREE.HemisphereLight(0xe6edf5, 0xb3a898, 1);
+  private readonly windows: THREE.RectAreaLight[] = [];
+  private bulbs: THREE.PointLight[] = [];
+  private readonly bulbGroup = new THREE.Group();
+  private time: TimeOfDay = 'day';
 
-  group.add(new THREE.HemisphereLight(0xe6edf5, 0xb3a898, 2.2));
+  constructor(
+    private readonly ap: Apartment,
+    private readonly scene: THREE.Scene,
+    private readonly renderer: THREE.WebGLRenderer,
+    shadowMapSize: number,
+  ) {
+    RectAreaLightUniformsLib.init();
+    this.group.name = 'lighting';
+    this.group.add(this.fill, this.bulbGroup);
 
-  const { x0, x1, y0, y1 } = ap.interior;
-  const center = new THREE.Vector3(m((x0 + x1) / 2), 0, m((y0 + y1) / 2));
-  const elevation = THREE.MathUtils.degToRad(27);
-  const azimuthFromSouth = THREE.MathUtils.degToRad(15); // lekko na zachód
-  const dir = new THREE.Vector3(
-    Math.cos(elevation) * Math.sin(azimuthFromSouth),
-    Math.sin(elevation),
-    Math.cos(elevation) * Math.cos(azimuthFromSouth),
-  );
+    // Słońce dla Warszawy w październiku ok. 13:00: wysokość ok. 27°, lekko na zachód od południa.
+    const { x0, x1, y0, y1 } = ap.interior;
+    const center = new THREE.Vector3(m((x0 + x1) / 2), 0, m((y0 + y1) / 2));
+    const elevation = THREE.MathUtils.degToRad(27);
+    const azimuth = THREE.MathUtils.degToRad(15);
+    const dir = new THREE.Vector3(Math.cos(elevation) * Math.sin(azimuth), Math.sin(elevation), Math.cos(elevation) * Math.cos(azimuth));
+    this.sun = new THREE.DirectionalLight(0xfff0dc, 1);
+    this.sun.position.copy(center).addScaledVector(dir, 15);
+    this.sun.target.position.copy(center);
+    this.sun.castShadow = true;
+    this.sun.shadow.mapSize.setScalar(shadowMapSize);
+    Object.assign(this.sun.shadow.camera, { left: -6, right: 6, top: 6, bottom: -6, near: 1, far: 30 });
+    this.sun.shadow.bias = -0.0005;
+    this.sun.shadow.normalBias = 0.02;
+    this.group.add(this.sun, this.sun.target);
 
-  const sun = new THREE.DirectionalLight(0xfff0dc, 3);
-  sun.position.copy(center).addScaledVector(dir, 15);
-  sun.target.position.copy(center);
-  sun.castShadow = true;
-  sun.shadow.mapSize.setScalar(shadowMapSize);
-  const cam = sun.shadow.camera;
-  cam.left = -6;
-  cam.right = 6;
-  cam.top = 6;
-  cam.bottom = -6;
-  cam.near = 1;
-  cam.far = 30;
-  sun.shadow.bias = -0.0005;
-  sun.shadow.normalBias = 0.02;
-  group.add(sun, sun.target);
+    // Światło nieba w każdym przeszkleniu ściany zewnętrznej, skierowane do wnętrza.
+    for (const o of ap.openings) {
+      const wall = ap.walls.find((w) => w.id === o.wallId);
+      if (!wall || wall.kind !== 'exterior' || wallAxis(wall) !== 'x') continue;
+      const width = m(o.to - o.from);
+      const height = m(o.head - o.sill);
+      const light = new THREE.RectAreaLight(0xffffff, 1, width, height);
+      const inside = wall.y0; // lico wewnętrzne
+      light.position.set(m((o.from + o.to) / 2), m((o.sill + o.head) / 2), m(inside) - 0.01);
+      light.lookAt(light.position.x, light.position.y, light.position.z - 1);
+      this.windows.push(light);
+      this.group.add(light);
+    }
+  }
 
-  return group;
+  /** Wczytuje HDRI nieba (tło + mapa otoczenia do odbić). */
+  loadSky(res: TextureRes, manager: THREE.LoadingManager): void {
+    const file = SKY_HDRI.resolutions.includes(res) ? res : '1k';
+    new RGBELoader(manager).load(`${import.meta.env.BASE_URL}assets/hdri/${SKY_HDRI.id}_${file}.hdr`, (hdr) => {
+      hdr.mapping = THREE.EquirectangularReflectionMapping;
+      const pmrem = new THREE.PMREMGenerator(this.renderer);
+      this.scene.environment = pmrem.fromEquirectangular(hdr).texture;
+      pmrem.dispose();
+      this.scene.background = hdr;
+      // Obrót nieba tak, by słońce z HDRI było mniej więcej po stronie balkonu (południe).
+      this.scene.backgroundRotation.y = this.scene.environmentRotation.y = Math.PI;
+    });
+  }
+
+  /** Żarówki na wypustach dla wariantu (po przebudowie zestaw może się różnić). */
+  setVariant(variant: Variant): void {
+    this.bulbs.forEach((b) => b.dispose());
+    this.bulbGroup.clear();
+    this.bulbs = bulbPositions(this.ap, variant).map((p) => {
+      const light = new THREE.PointLight(BULB_COLOR, 0, 0, 2);
+      light.position.set(m(p.x), m(p.z), m(p.y));
+      this.bulbGroup.add(light);
+      return light;
+    });
+    this.apply();
+  }
+
+  setTime(time: TimeOfDay, materials?: MaterialSet): void {
+    this.time = time;
+    this.apply(materials);
+  }
+
+  private apply(materials?: MaterialSet): void {
+    const p = PRESETS[this.time];
+    this.renderer.toneMappingExposure = p.exposure;
+    this.sun.intensity = p.sun;
+    this.sun.visible = p.sun > 0;
+    this.fill.intensity = p.fill;
+    for (const w of this.windows) {
+      w.intensity = p.sky;
+      w.color.set(p.skyColor);
+    }
+    this.scene.environmentIntensity = p.environment;
+    this.scene.backgroundIntensity = p.background;
+    for (const b of this.bulbs) {
+      b.intensity = p.bulbs;
+      b.visible = p.bulbs > 0;
+    }
+    if (materials) materials.bulb.emissiveIntensity = p.bulbGlow;
+  }
 }

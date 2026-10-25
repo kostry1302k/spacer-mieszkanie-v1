@@ -1,11 +1,12 @@
 import * as THREE from 'three';
 import { apartment } from './data/apartment';
-import { rawFlat } from './data/modes/raw';
+import { rawMaterials } from './data/modes/raw';
 import type { Room, Variant } from './data/types';
 import { buildApartmentModel, type ApartmentModel } from './geometry/apartmentModel';
 import { createRenderer, bindResize } from './scene/renderer';
-import { createFlatMaterials } from './scene/materials';
-import { createDaylight } from './scene/lighting';
+import { createMaterials } from './scene/materials';
+import { Lighting } from './scene/lighting';
+import { buildEnvironment } from './scene/environment';
 import { MockupViews } from './scene/views';
 import { Player } from './controls/player';
 import { DesktopControls } from './controls/desktop';
@@ -27,7 +28,13 @@ const renderer = createRenderer({ canvas, maxPixelRatio: qualityProfile.maxPixel
 
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(0xd9e2ea);
-scene.add(createDaylight(apartment, qualityProfile.shadowMapSize));
+const lighting = new Lighting(apartment, scene, renderer, qualityProfile.shadowMapSize);
+scene.add(lighting.group);
+
+// Postęp ładowania tekstur i nieba – na ekranie startowym.
+const loading = new THREE.LoadingManager();
+loading.onProgress = (_url, loaded, total) => hud.setStatus(loaded < total ? `Ładowanie materiałów… ${Math.round((loaded / total) * 100)}%` : null);
+loading.onLoad = () => hud.setStatus(null);
 
 // Widoki: spacer (kamera na wysokości oczu) i makieta (orbita / z góry).
 const walkCamera = new THREE.PerspectiveCamera(70, 1, 0.05, 100);
@@ -92,13 +99,21 @@ bindResize(renderer, (w, h) => {
   labels.renderer.setSize(w, h);
 });
 
-const materials = createFlatMaterials(rawFlat);
+const materials = createMaterials(rawMaterials, {
+  maxResolution: qualityProfile.textureSize === 2048 ? '2k' : '1k',
+  anisotropy: Math.min(8, renderer.capabilities.getMaxAnisotropy()),
+  manager: loading,
+});
+lighting.loadSky(qualityProfile.textureSize === 2048 ? '2k' : '1k', loading);
+// Elewacja i balkony wyższych pięter tylko w spacerze – w makiecie zasłaniałyby mieszkanie.
+const environment = buildEnvironment(apartment, materials);
+scene.add(environment);
 let model: ApartmentModel | null = null;
 let colliders: Rect[] = [];
 let hoveredDoor: string | null = null;
 
 const availableViews: AppView[] = ['walk', 'orbit', 'top'];
-let state: ViewPanelState = { view: availableViews[0], rebuild: false, ceiling: false, labels: true };
+let state: ViewPanelState = { view: availableViews[0], time: 'day', rebuild: false, ceiling: false, labels: true };
 
 const variantOf = (s: ViewPanelState): Variant => (s.rebuild ? 'rebuild' : 'developer');
 
@@ -113,6 +128,7 @@ function rebuild(): void {
   doors.setLeaves(model.leaves);
   colliders = staticColliders(apartment, variant);
   labels.build(apartment, variant);
+  lighting.setVariant(variant);
   minimap.build(variant);
   roomList.build(variant);
   player.settle([...colliders, ...doors.colliders()]);
@@ -121,6 +137,8 @@ function rebuild(): void {
 
 function applyView(): void {
   const walk = state.view === 'walk';
+  lighting.setTime(state.time, materials);
+  environment.visible = walk;
   if (model) model.ceilings.visible = walk || (state.ceiling && state.view === 'orbit');
   labels.setVisible(!walk && state.labels);
   views.setMode(walk ? 'off' : state.view === 'top' ? 'top' : 'orbit');

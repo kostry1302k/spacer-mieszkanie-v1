@@ -8,7 +8,8 @@
     "dev": "vite --host",
     "build": "npm run check:data && tsc --noEmit && vite build",
     "preview": "vite preview --host",
-    "check:data": "node scripts/check-data.ts"
+    "check:data": "node scripts/check-data.ts",
+    "assets": "node scripts/fetch-assets.ts"
   },
   "dependencies": {
     "three": "0.186.1"

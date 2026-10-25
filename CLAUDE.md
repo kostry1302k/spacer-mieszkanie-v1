@@ -28,7 +28,8 @@ Plan prac w etapach: [PLAN.md](PLAN.md).
 - **Vite** + **TypeScript** (strict), moduły ES, bez frameworka UI (HUD w czystym DOM + CSS).
 - **Three.js** (wersja przypięta w package.json), dodatki z `three/addons`: `GLTFLoader`, `KTX2Loader`, `DRACOLoader`/meshopt, `RGBELoader`, `PointerLockControls` (lub własna implementacja).
 - Brak silnika fizyki: kolizje 2D (gracz to okrąg r = 25 cm, ściany to odcinki/prostokąty z danych).
-- Narzędzia zasobów (devDependencies/skrypty): `@gltf-transform/cli` (kompresja GLB), `toktx`/`basisu` lub `@gltf-transform` do KTX2.
+- Zasoby: `npm run assets` (scripts/fetch-assets.ts) pobiera tekstury i HDRI przez API Poly Haven / ambientCG, przeskalowuje i kompresuje JPEG narzędziem `sips` (macOS), rozpakowuje `unzip`. Wynik jest w repozytorium, CI go nie pobiera. Modele GLB (Etap 6+): `@gltf-transform/cli`.
+- Renderowanie: tone mapping AgX, światła fizyczne (cd, lx, nit), niebo HDRI `noon_grass` jako tło i mapa otoczenia.
 
 ## Struktura plików
 ```
@@ -39,10 +40,10 @@ package.json
 .github/workflows/deploy.yml – build i publikacja na GitHub Pages
 materialy/                 – materiały źródłowe (tylko odczyt)
 public/assets/
-  textures/<id>/           – tekstury PBR CC0 (KTX2; 1k mobile, 2k desktop)
+  textures/<id>/<1k|2k>/   – tekstury PBR CC0: color.jpg, normal.jpg (OpenGL), roughness.jpg
   models/<id>.glb          – meble GLB (skompresowane)
-  hdri/<id>.hdr            – niebo/otoczenie (małe, 1k)
-  CREDITS.md               – źródło, autor, licencja każdego zasobu
+  hdri/<id>_<1k|2k>.hdr    – niebo/otoczenie (telefon 1k, komputer 2k)
+  CREDITS.md               – źródło, autor, licencja każdego zasobu (generuje `npm run assets`)
 scripts/
   fetch-assets.ts          – pobiera zasoby z listy (Poly Haven API / ambientCG), konwertuje, zapisuje CREDITS
   check-data.ts            – walidacja danych mieszkania (zamknięte obrysy, otwory w ścianach, metraże vs wymiary.md)
@@ -62,7 +63,7 @@ src/
       raw.ts               – tryb surowy: materiały (na razie płaskie kolory), osprzęt, światła
       styl1.ts             – wykończenie styl 1: materiały, meble, oprawy
       styl2.ts             – wykończenie styl 2
-    materials.ts           – katalog materiałów PBR (id → pliki tekstur, skala UV, parametry)
+    materials.ts           – katalog tekstur PBR (id, rzeczywisty rozmiar kafla w m, dostępne rozdzielczości) i HDRI nieba
   geometry/
     apartmentModel.ts      – składa całą bryłę mieszkania z danych dla wariantu i zestawu materiałów
     box.ts                 – prostopadłościany w cm rzutu, UV w skali świata, łączenie geometrii
@@ -78,8 +79,8 @@ src/
     renderer.ts            – WebGLRenderer, tone mapping (ACES/AgX), sRGB, resize, DPR
     materials.ts           – klucze powierzchni (SurfaceKey) i tworzenie zestawu materiałów trybu
     views.ts               – widoki makiety: kamera orbitalna 3D i rzut z góry
-    lighting.ts            – słońce (DirectionalLight + cień), niebo/HDRI, światła sztuczne, dzień/wieczór
-    environment.ts         – otoczenie za oknami (niebo, prosta bryła sąsiedztwa)
+    lighting.ts            – niebo HDRI, słońce z południa z cieniem, światło nieba w przeszkleniach (RectAreaLight), żarówki wieczorem; presety dzień/wieczór
+    environment.ts         – otoczenie widoczne w spacerze: elewacja, balkony wyższych pięter, trawa (dalej niebo HDRI)
   controls/
     player.ts              – pozycja, prędkość, wysokość oczu 165 cm
     desktop.ts             – pointer lock, WASD/strzałki, Shift = szybciej
@@ -90,10 +91,9 @@ src/
   ui/
     hud.ts                 – HUD spaceru: celownik, podpowiedź, ekran startowy/pauzy, przyciemnienie przy przejściu
     modeSwitch.ts          – przełącznik trybów i ścianki
-    dayNight.ts            – przełącznik dzień/wieczór
     minimap.ts             – minimapa 2D (canvas) rysowana z apartment.ts + pozycja i kierunek patrzenia
     roomList.ts            – lista pokoi, teleport do punktu startowego pokoju
-    viewPanel.ts           – panel widoku: Spacer / Makieta / Z góry, nowa ścianka, sufit, etykiety
+    viewPanel.ts           – panel widoku: Spacer / Makieta / Z góry, dzień / wieczór, nowa ścianka, sufit, etykiety
     roomLabels.ts          – podpisy pokoi z metrażem (CSS2D)
   styles/main.css
 ```
@@ -106,7 +106,7 @@ src/
 - Tryby różnią się tylko danymi w `data/modes/*`; kod budujący scenę jest wspólny. Przełączenie trybu nie przeładowuje strony, zasoby trybu ładujemy przy pierwszym użyciu.
 - **Zasoby tylko CC0**: Poly Haven (tekstury, HDRI, modele), ambientCG (tekstury). Każdy plik wpisany do `public/assets/CREDITS.md` (URL, autor, licencja). Nie dodawać zasobów bez licencji ani z „free for personal use”.
 - Gdy nie ma pasującego modelu CC0, mebel modelujemy proceduralnie w `furniture/builders`: zaokrąglone krawędzie (RoundedBoxGeometry/fazki), poprawne proporcje z katalogów (sofa 85 cm wys., siedzisko 45, blat 90, stół 75 itd.), osobne materiały dla tkaniny, drewna, metalu.
-- **Budżet wydajności (telefon średniej klasy):** ≥ 30 fps, cel 60 fps na komputerze; ≤ 150 draw calls; ≤ 300 tys. trójkątów; tekstury 1k na telefonie (2k na komputerze), KTX2; pierwszy tryb do pobrania ≤ 20 MB; DPR na telefonie ≤ 1,5; jeden cień kierunkowy (mapa 1024 mobile / 2048 desktop), światła sztuczne bez cieni lub z najwyżej 1–2 cieniami na desktopie. Statyczne bryły łączymy (merge) per materiał.
+- **Budżet wydajności (telefon średniej klasy):** ≥ 30 fps, cel 60 fps na komputerze; ≤ 150 draw calls; ≤ 300 tys. trójkątów; tekstury JPEG 1k na telefonie (2k tylko dla podłóg na komputerze; KTX2 rozważymy w Etapie 8, jeśli zabraknie pamięci GPU); pierwszy tryb do pobrania ≤ 20 MB; DPR na telefonie ≤ 1,5; jeden cień kierunkowy (mapa 1024 mobile / 2048 desktop), światła sztuczne bez cieni lub z najwyżej 1–2 cieniami na desktopie. Statyczne bryły łączymy (merge) per materiał.
 - Kod i identyfikatory po angielsku, interfejs i dokumentacja po polsku. Komentarze oszczędnie, tam gdzie logika nie jest oczywista.
 - Każdy etap z PLAN.md kończy się działającą wersją: `npm run build` bez błędów, sprawdzenie w podglądzie (desktop i widok mobilny), commit, publikacja na GitHub Pages.
 - Commity małe, opisowe, po polsku lub angielsku konsekwentnie w obrębie repo (domyślnie: polski).
@@ -117,7 +117,7 @@ npm run dev          # serwer deweloperski (z --host, żeby sprawdzić na telefo
 npm run build        # build do dist/
 npm run preview      # podgląd builda
 npm run check:data   # walidacja apartment.ts
-npm run assets       # pobranie i konwersja zasobów CC0
+npm run assets       # pobranie i konwersja zasobów CC0 (tylko macOS – używa sips)
 ```
 
 ## Style wykończenia (z analizy zdjęć)

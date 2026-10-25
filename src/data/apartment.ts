@@ -7,6 +7,8 @@ const H = 270;
 export const apartment: Apartment = {
   name: 'Mieszkanie M12, Skypoint 57',
   height: H,
+  // Lokal na 1. piętrze (karta lokalu); wysokość kondygnacji przyjęta: 270 + strop ok. 30.
+  building: { storeyHeight: 300, floor: 1 },
   interior: { x0: 0, y0: 0, x1: 539, y1: 579.5 },
 
   walls: [

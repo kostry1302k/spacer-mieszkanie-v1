@@ -37,6 +37,12 @@ export class WalkHud {
     if (!active) this.setHint(null);
   }
 
+  /** Komunikat pod tytułem ekranu startowego (np. postęp ładowania); null przywraca opis. */
+  setStatus(text: string | null): void {
+    const el = this.overlay.querySelector('.overlay-status')!;
+    el.textContent = text ?? 'Stan surowy · M12, Skypoint 57';
+  }
+
   setPaused(): void {
     this.overlay.querySelector('button')!.textContent = 'Kliknij, aby kontynuować';
   }
