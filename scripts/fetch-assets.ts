@@ -34,6 +34,11 @@ const ASSETS: Asset[] = [
   { kind: 'texture', source: 'ambientcg', id: 'Concrete024', use: 'szary tynk ścian (stan surowy)', resolutions: ['1k'] },
   { kind: 'texture', source: 'ambientcg', id: 'Concrete034', use: 'sufit (stan surowy)', resolutions: ['1k'] },
   { kind: 'texture', source: 'ambientcg', id: 'Concrete020', use: 'płyta balkonu, beton', resolutions: ['1k'] },
+  { kind: 'texture', source: 'polyhaven', id: 'wood_floor', use: 'podłoga – dąb dymiony (styl 1)', resolutions: ['1k', '2k'] },
+  { kind: 'texture', source: 'polyhaven', id: 'herringbone_parquet', use: 'podłoga – jasny dąb w jodełkę (styl 2)', resolutions: ['1k', '2k'] },
+  { kind: 'texture', source: 'ambientcg', id: 'PaintedPlaster017', use: 'malowane ściany i sufity (wykończenia)', resolutions: ['1k'] },
+  { kind: 'texture', source: 'ambientcg', id: 'PavingStones136', use: 'łazienka – duże płyty w stylu betonu (styl 1)', resolutions: ['1k'] },
+  { kind: 'texture', source: 'ambientcg', id: 'Tiles078', use: 'łazienka – płytki w stylu marmuru (styl 2)', resolutions: ['1k'] },
   { kind: 'hdri', source: 'polyhaven', id: 'noon_grass', use: 'niebo i otoczenie za oknami, światło otoczenia', resolutions: ['1k', '2k'] },
 ];
 

@@ -1,10 +1,10 @@
 import * as THREE from 'three';
 import { apartment } from './data/apartment';
-import { rawMaterials } from './data/modes/raw';
+import { MODES, type ModeId } from './data/modes';
 import type { Room, Variant } from './data/types';
 import { buildApartmentModel, type ApartmentModel } from './geometry/apartmentModel';
 import { createRenderer, bindResize } from './scene/renderer';
-import { createMaterials } from './scene/materials';
+import type { MaterialSet } from './scene/materials';
 import { Lighting } from './scene/lighting';
 import { buildEnvironment } from './scene/environment';
 import { MockupViews } from './scene/views';
@@ -17,7 +17,9 @@ import { RoomLabels } from './ui/roomLabels';
 import { RoomList } from './ui/roomList';
 import { Minimap } from './ui/minimap';
 import { WalkHud } from './ui/hud';
-import { createViewPanel, type AppView, type ViewPanelState } from './ui/viewPanel';
+import { createViewPanel } from './ui/viewPanel';
+import { Store, type AppState, type AppView } from './core/state';
+import { MaterialLibrary } from './core/assets';
 import { createFpsMeter, isDebug } from './core/debug';
 import { AdaptiveQuality, isTouchDevice as isTouch, qualityProfile } from './core/quality';
 import './styles/main.css';
@@ -25,16 +27,16 @@ import './styles/main.css';
 const canvas = document.querySelector<HTMLCanvasElement>('#scene')!;
 const hudRoot = document.querySelector<HTMLElement>('#hud')!;
 const renderer = createRenderer({ canvas, maxPixelRatio: qualityProfile.maxPixelRatio });
+const textureRes = qualityProfile.textureSize === 2048 ? '2k' : '1k';
 
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(0xd9e2ea);
 const lighting = new Lighting(apartment, scene, renderer, qualityProfile.shadowMapSize);
 scene.add(lighting.group);
 
-// Postęp ładowania tekstur i nieba – na ekranie startowym.
-const loading = new THREE.LoadingManager();
-loading.onProgress = (_url, loaded, total) => hud.setStatus(loaded < total ? `Ładowanie materiałów… ${Math.round((loaded / total) * 100)}%` : null);
-loading.onLoad = () => hud.setStatus(null);
+const availableViews: AppView[] = ['walk', 'orbit', 'top'];
+const store = new Store<AppState>({ mode: 'raw', view: 'walk', time: 'day', rebuild: false, ceiling: false, labels: true });
+const variantOf = (s: AppState): Variant => MODES[s.mode].variant ?? (s.rebuild ? 'rebuild' : 'developer');
 
 // Widoki: spacer (kamera na wysokości oczu) i makieta (orbita / z góry).
 const walkCamera = new THREE.PerspectiveCamera(70, 1, 0.05, 100);
@@ -52,13 +54,13 @@ minimap.element.title = 'Powiększ / zmniejsz mapę';
 minimap.element.addEventListener('click', () => {
   minimapBig = !minimapBig;
   minimap.resize(MINIMAP_SIZES[+minimapBig]);
-  minimap.build(variantOf(state));
+  minimap.build(variantOf(store.get()));
 });
 const roomList = new RoomList(apartment, (room) => goToRoom(room));
 const desktop = new DesktopControls(canvas, player, {
   onInteract: () => hoveredDoor && doors.toggle(hoveredDoor),
   onLockChange: (locked) => {
-    if (state.view !== 'walk') return;
+    if (store.get().view !== 'walk') return;
     hud.setActive(locked);
     if (!locked) hud.setPaused();
   },
@@ -67,9 +69,9 @@ const desktop = new DesktopControls(canvas, player, {
 let touchWalking = false;
 const touch = new TouchControls(canvas, player, {
   onTap: (x, y) => {
-    if (state.view !== 'walk' || !model) return;
+    if (store.get().view !== 'walk' || !model) return;
     const ndc = new THREE.Vector2((x / window.innerWidth) * 2 - 1, -(y / window.innerHeight) * 2 + 1);
-    const id = doors.pick(walkCamera, [model.root.getObjectByName('walls')!], ndc);
+    const id = doors.pick(walkCamera, model.occluders, ndc);
     if (id) doors.toggle(id);
   },
 });
@@ -99,49 +101,79 @@ bindResize(renderer, (w, h) => {
   labels.renderer.setSize(w, h);
 });
 
-const materials = createMaterials(rawMaterials, {
-  maxResolution: qualityProfile.textureSize === 2048 ? '2k' : '1k',
-  anisotropy: Math.min(8, renderer.capabilities.getMaxAnisotropy()),
-  manager: loading,
-});
-lighting.loadSky(qualityProfile.textureSize === 2048 ? '2k' : '1k', loading);
-// Elewacja i balkony wyższych pięter tylko w spacerze – w makiecie zasłaniałyby mieszkanie.
-const environment = buildEnvironment(apartment, materials);
-scene.add(environment);
+// Materiały trybów (ładowane przy pierwszym użyciu) i niebo.
+const library = new MaterialLibrary({ maxResolution: textureRes, anisotropy: Math.min(8, renderer.capabilities.getMaxAnisotropy()) });
+const skyLoading = new THREE.LoadingManager();
+lighting.loadSky(textureRes, skyLoading);
+
+let materials: MaterialSet | null = null;
+let loadedMode: ModeId | null = null;
+let environment: THREE.Group | null = null;
 let model: ApartmentModel | null = null;
 let colliders: Rect[] = [];
 let hoveredDoor: string | null = null;
+let modeRequest = 0;
 
-const availableViews: AppView[] = ['walk', 'orbit', 'top'];
-let state: ViewPanelState = { view: availableViews[0], time: 'day', rebuild: false, ceiling: false, labels: true };
-
-const variantOf = (s: ViewPanelState): Variant => (s.rebuild ? 'rebuild' : 'developer');
+/** Przełącza tryb: wczytuje jego materiały, przebudowuje scenę i zwalnia poprzedni zestaw. */
+async function loadMode(mode: ModeId): Promise<void> {
+  const request = ++modeRequest;
+  const def = MODES[mode];
+  const show = (p: number) => {
+    const text = p < 1 ? `Wczytywanie: ${def.name}… ${Math.round(p * 100)}%` : null;
+    hud.setLoading(text);
+    hud.setStatus(text);
+  };
+  show(0);
+  const next = await library.load(def, show);
+  if (request !== modeRequest) {
+    library.release(next, materials ?? next);
+    return; // w międzyczasie wybrano inny tryb
+  }
+  const previous = materials;
+  materials = next;
+  loadedMode = mode;
+  if (environment) {
+    scene.remove(environment);
+    environment.traverse((o) => o instanceof THREE.Mesh && o.geometry.dispose());
+  }
+  environment = buildEnvironment(apartment, materials);
+  scene.add(environment);
+  rebuild();
+  if (previous) library.release(previous, materials);
+  show(1);
+  hud.setSubtitle(`${def.name} · M12, Skypoint 57`);
+}
 
 function rebuild(): void {
+  if (!materials || !loadedMode) return;
   if (model) {
     scene.remove(model.root);
     model.dispose();
   }
-  const variant = variantOf(state);
-  model = buildApartmentModel(apartment, { variant, interiorDoors: false }, materials);
+  const s = store.get();
+  const def = MODES[loadedMode];
+  const variant = variantOf(s);
+  model = buildApartmentModel(apartment, { variant, interiorDoors: def.interiorDoors, ceilingFixture: def.ceilingFixture }, materials);
   scene.add(model.root);
   doors.setLeaves(model.leaves);
   colliders = staticColliders(apartment, variant);
   labels.build(apartment, variant);
-  lighting.setVariant(variant);
+  lighting.setLamps(variant, def.ceilingFixture);
   minimap.build(variant);
   roomList.build(variant);
+  // Gracz mógł stać w miejscu nowej ścianki – wypychamy go do najbliższego wolnego miejsca.
   player.settle([...colliders, ...doors.colliders()]);
   applyView();
 }
 
 function applyView(): void {
-  const walk = state.view === 'walk';
-  lighting.setTime(state.time, materials);
-  environment.visible = walk;
-  if (model) model.ceilings.visible = walk || (state.ceiling && state.view === 'orbit');
-  labels.setVisible(!walk && state.labels);
-  views.setMode(walk ? 'off' : state.view === 'top' ? 'top' : 'orbit');
+  const s = store.get();
+  const walk = s.view === 'walk';
+  if (materials) lighting.setTime(s.time, materials);
+  if (environment) environment.visible = walk; // elewacja zasłaniałaby makietę
+  if (model) model.ceilings.visible = walk || (s.ceiling && s.view === 'orbit');
+  labels.setVisible(!walk && s.labels);
+  views.setMode(walk ? 'off' : s.view === 'top' ? 'top' : 'orbit');
   desktop.enabled = walk;
   touch.enabled = walk;
   sidebar.hidden = !walk;
@@ -161,20 +193,20 @@ function goToRoom(room: Room): void {
   });
 }
 
-hudRoot.appendChild(
-  createViewPanel(state, availableViews, isTouch, (next) => {
-    const variantChanged = next.rebuild !== state.rebuild;
-    state = next;
-    if (variantChanged) rebuild();
-    else applyView();
-  }),
-);
+store.subscribe((next, prev) => {
+  if (next.mode !== prev.mode) void loadMode(next.mode);
+  else if (variantOf(next) !== variantOf(prev)) rebuild();
+  else applyView();
+});
+
+hudRoot.appendChild(createViewPanel(store, availableViews, isTouch));
 
 const start = apartment.rooms.find((r) => r.id === 'hol')!.spawn;
 player.place(start.x, start.y, start.yaw);
-rebuild();
+applyView();
+void loadMode(store.get().mode);
 
-const adaptive = new AdaptiveQuality(renderer, () => Object.values(materials).forEach((mat) => (mat.needsUpdate = true)));
+const adaptive = new AdaptiveQuality(renderer, () => materials && Object.values(materials).forEach((mat) => (mat.needsUpdate = true)));
 const tickFps = isDebug ? createFpsMeter() : null;
 if (isDebug) {
   // Pomoc do testów w konsoli: app.walk({ forward: 1, strafe: 0, run: false }, 2) symuluje 2 s chodu.
@@ -186,9 +218,10 @@ if (isDebug) {
     player.applyToCamera(walkCamera);
     scene.updateMatrixWorld(); // gdy karta jest w tle, pętla renderowania nie biegnie
     walkCamera.updateMatrixWorld();
-    return doors.pick(walkCamera, model ? [model.root.getObjectByName('walls')!] : []);
+    return model ? doors.pick(walkCamera, model.occluders) : null;
   };
-  Object.assign(window, { app: { player, doors, desktop, touch, apartment, walk, pick, adaptive } });
+  const memory = () => ({ ...renderer.info.memory, textures: renderer.info.memory.textures, library: library.textureCount });
+  Object.assign(window, { app: { player, doors, desktop, touch, apartment, store, walk, pick, adaptive, memory } });
 }
 
 const clock = new THREE.Clock();
@@ -198,12 +231,11 @@ renderer.setAnimationLoop(() => {
   doors.update(dt);
 
   let camera: THREE.Camera;
-  if (state.view === 'walk') {
+  if (store.get().view === 'walk') {
     player.update(dt, touch.active ? touch.input : desktop.input, [...colliders, ...doors.colliders()]);
     player.applyToCamera(walkCamera);
     camera = walkCamera;
-    const occluders = model ? [model.root.getObjectByName('walls')!] : [];
-    hoveredDoor = walkActive() || isDebug ? doors.pick(walkCamera, occluders) : null;
+    hoveredDoor = model && (walkActive() || isDebug) ? doors.pick(walkCamera, model.occluders) : null;
     const action = hoveredDoor && (doors.isOpen(hoveredDoor) ? 'zamknij' : 'otwórz');
     hud.setHint(action && walkActive() ? (isTouch ? `Dotknij drzwi – ${action}` : `E / klik – ${action} drzwi`) : null);
     minimap.draw(player, doors.outlines());

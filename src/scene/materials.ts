@@ -4,7 +4,9 @@ import { TEXTURES, type TextureKey, type TextureRes, type TextureSet } from '../
 /** Rodzaje powierzchni; tryb (surowy, styl 1, styl 2) przypisuje każdej materiał. */
 export type SurfaceKey =
   | 'wall'
+  | 'wallBathroom'
   | 'floor'
+  | 'floorBathroom'
   | 'ceiling'
   | 'threshold'
   | 'concrete'
@@ -44,20 +46,20 @@ export interface MaterialOptions {
   maxResolution: TextureRes;
   anisotropy: number;
   manager: THREE.LoadingManager;
+  /** Wspólna pamięć tekstur (adres → tekstura), żeby kolejne tryby używały tych samych plików. */
+  textures: Map<string, THREE.Texture>;
 }
-
-const textureCache = new Map<string, THREE.Texture>();
 
 function loadTexture(url: string, color: boolean, repeat: number, opts: MaterialOptions): THREE.Texture {
   const key = `${url}|${repeat}`;
-  const cached = textureCache.get(key);
+  const cached = opts.textures.get(key);
   if (cached) return cached;
   const tex = new THREE.TextureLoader(opts.manager).load(url);
   tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
   tex.repeat.setScalar(1 / repeat);
   tex.anisotropy = opts.anisotropy;
   tex.colorSpace = color ? THREE.SRGBColorSpace : THREE.NoColorSpace;
-  textureCache.set(key, tex);
+  opts.textures.set(key, tex);
   return tex;
 }
 
@@ -98,4 +100,13 @@ export function createMaterials(specs: Record<SurfaceKey, MaterialSpec>, opts: M
     return [key, mat];
   });
   return Object.fromEntries(entries) as MaterialSet;
+}
+
+/** Tekstury używane przez zestaw materiałów. */
+export function texturesOf(set: MaterialSet): Set<THREE.Texture> {
+  const used = new Set<THREE.Texture>();
+  for (const mat of Object.values(set)) {
+    for (const tex of [mat.map, mat.normalMap, mat.roughnessMap]) if (tex) used.add(tex);
+  }
+  return used;
 }

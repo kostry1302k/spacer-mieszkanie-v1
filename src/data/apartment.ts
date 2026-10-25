@@ -55,6 +55,7 @@ export const apartment: Apartment = {
   rooms: [
     {
       id: 'hol',
+      kind: 'hall',
       name: 'Hol',
       polygon: [[160, 0], [350, 0], [350, 185], [160, 185]],
       expectedArea: 3.51,
@@ -62,6 +63,7 @@ export const apartment: Apartment = {
     },
     {
       id: 'lazienka',
+      kind: 'bathroom',
       name: 'Łazienka',
       polygon: [[30, 0], [150, 0], [150, 222], [0, 222], [0, 60], [30, 60]],
       expectedArea: 3.14,
@@ -69,6 +71,7 @@ export const apartment: Apartment = {
     },
     {
       id: 'pokoj',
+      kind: 'living',
       name: 'Pokój dzienny z aneksem',
       polygon: [[358, 0], [479, 0], [479, 60], [539, 60], [539, 579.5], [0, 579.5], [0, 232], [160, 232], [160, 185], [358, 185]],
       expectedArea: 23.47,
@@ -77,6 +80,7 @@ export const apartment: Apartment = {
     },
     {
       id: 'salon',
+      kind: 'living',
       name: 'Salon z aneksem',
       polygon: [[358, 0], [479, 0], [479, 60], [539, 60], [539, 579.5], [274.5, 579.5], [274.5, 222], [160, 222], [160, 185], [358, 185]],
       expectedArea: 13.82,
@@ -85,6 +89,7 @@ export const apartment: Apartment = {
     },
     {
       id: 'sypialnia',
+      kind: 'bedroom',
       name: 'Sypialnia',
       polygon: [[0, 232], [264.5, 232], [264.5, 579.5], [0, 579.5]],
       expectedArea: 9.19,
@@ -93,6 +98,7 @@ export const apartment: Apartment = {
     },
     {
       id: 'balkon',
+      kind: 'balcony',
       name: 'Balkon',
       polygon: [[69.5, 619], [469.5, 619], [469.5, 763], [69.5, 763]],
       expectedArea: 5.76,

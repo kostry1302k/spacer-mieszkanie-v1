@@ -52,22 +52,24 @@ src/
   core/
     units.ts               – cm → m (dane w cm, scena w metrach: 1 jednostka = 1 m)
     plan.ts                – obliczenia na rzucie: pole i środek wielokąta, oś ściany, filtr wariantu (bez zależności, używa go też check-data)
-    state.ts               – stan: tryb, pora dnia, nowa ścianka, pozycja gracza; prosty event bus
+    state.ts               – stan aplikacji (tryb, widok, pora dnia, nowa ścianka, opcje makiety) i prosty magazyn z subskrypcją
     quality.ts             – profil jakości (mobile/desktop) i automatyczne obniżanie (DPR, potem cienie) przy FPS < 30
-    assets.ts              – ładowanie i cache tekstur/modeli, lazy-load per tryb
+    assets.ts              – materiały trybów ładowane przy pierwszym użyciu, wspólne tekstury, zwalnianie pamięci GPU po zmianie trybu
     debug.ts               – tryb `?debug` w adresie: licznik FPS; w konsoli `app.walk(...)`, `app.pick()` do testów
   data/
     apartment.ts           – JEDYNY plik geometrii: ściany, otwory, drzwi, okna, szachty, pokoje, wysokości, balkon, grzejniki, elektryka
     types.ts               – typy danych (Wall, Opening, Door, Room, Fixture…)
     modes/
-      raw.ts               – tryb surowy: materiały (na razie płaskie kolory), osprzęt, światła
+      index.ts             – definicje trybów (nazwa, materiały, wymuszony wariant, drzwi wewnętrzne, oprawy sufitowe)
+      common.ts            – powierzchnie wspólne dla trybów (stolarka, elewacja, grzejniki, osprzęt)
+      raw.ts               – tryb surowy: wylewka, szary tynk, gołe żarówki
       styl1.ts             – wykończenie styl 1: materiały, meble, oprawy
       styl2.ts             – wykończenie styl 2
     materials.ts           – katalog tekstur PBR (id, rzeczywisty rozmiar kafla w m, dostępne rozdzielczości) i HDRI nieba
   geometry/
     apartmentModel.ts      – składa całą bryłę mieszkania z danych dla wariantu i zestawu materiałów
     box.ts                 – prostopadłościany w cm rzutu, UV w skali świata, łączenie geometrii
-    walls.ts               – ściany z otworami (podział na bryły między otworami), ościeża, nadproża
+    walls.ts               – ściany z otworami (bryły między otworami), lica przypisane do pomieszczeń (łazienka → płytki, zewnątrz → elewacja)
     floors.ts              – podłogi i sufity z obrysów pokoi, listwy
     openings.ts            – ościeżnice, skrzydła drzwi, drzwi balkonowe ze szkłem
     balcony.ts             – płyta, balustrada B1
@@ -103,7 +105,7 @@ src/
 - Zmiana wymiaru: najpierw wymiary.md (za zgodą właściciela), potem apartment.ts, potem `npm run check:data`.
 - Układ współrzędnych jak w wymiary.md: X w prawo, Y w głąb (→ w Three.js oś Z), wysokość → oś Y Three.js. Początek w narożniku ściany wejściowej i lewej.
 - Ściany sąsiednie (21 cm) i zewnętrzna (39,5 cm) modelujemy z prawdziwą grubością, żeby ościeża i wnęki okien wyglądały wiarygodnie.
-- Tryby różnią się tylko danymi w `data/modes/*`; kod budujący scenę jest wspólny. Przełączenie trybu nie przeładowuje strony, zasoby trybu ładujemy przy pierwszym użyciu.
+- Tryby różnią się tylko danymi w `data/modes/*`; kod budujący scenę jest wspólny. Materiał lica ściany i podłogi wynika z rodzaju pomieszczenia (`Room.kind`), np. łazienka → `wallBathroom` / `floorBathroom`. Przełączenie trybu nie przeładowuje strony, zasoby trybu ładujemy przy pierwszym użyciu.
 - **Zasoby tylko CC0**: Poly Haven (tekstury, HDRI, modele), ambientCG (tekstury). Każdy plik wpisany do `public/assets/CREDITS.md` (URL, autor, licencja). Nie dodawać zasobów bez licencji ani z „free for personal use”.
 - Gdy nie ma pasującego modelu CC0, mebel modelujemy proceduralnie w `furniture/builders`: zaokrąglone krawędzie (RoundedBoxGeometry/fazki), poprawne proporcje z katalogów (sofa 85 cm wys., siedzisko 45, blat 90, stół 75 itd.), osobne materiały dla tkaniny, drewna, metalu.
 - **Budżet wydajności (telefon średniej klasy):** ≥ 30 fps, cel 60 fps na komputerze; ≤ 150 draw calls; ≤ 300 tys. trójkątów; tekstury JPEG 1k na telefonie (2k tylko dla podłóg na komputerze; KTX2 rozważymy w Etapie 8, jeśli zabraknie pamięci GPU); pierwszy tryb do pobrania ≤ 20 MB; DPR na telefonie ≤ 1,5; jeden cień kierunkowy (mapa 1024 mobile / 2048 desktop), światła sztuczne bez cieni lub z najwyżej 1–2 cieniami na desktopie. Statyczne bryły łączymy (merge) per materiał.

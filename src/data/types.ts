@@ -55,9 +55,13 @@ export interface Door {
   frameInset: number;
 }
 
+export type RoomKind = 'hall' | 'bathroom' | 'living' | 'bedroom' | 'balcony';
+
 export interface Room {
   id: string;
   name: string;
+  /** Rodzaj pomieszczenia – decyduje o wykończeniu (np. płytki w łazience). */
+  kind: RoomKind;
   polygon: Point[];
   /** Powierzchnia z rzutu / wymiary.md, m² – walidator porównuje ją z obrysem. */
   expectedArea: number;

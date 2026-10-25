@@ -14,8 +14,12 @@ function planeFromPolygon(polygon: readonly Point[], height: number, facing: 'up
   return g;
 }
 
-export function floorGeometries(ap: Apartment, variant: Variant): THREE.BufferGeometry[] {
-  return ap.rooms.filter((r) => !r.outdoor && inVariant(r, variant)).map((r) => planeFromPolygon(r.polygon, 0, 'up'));
+export type FloorSurface = 'floor' | 'floorBathroom';
+
+export function floorGeometries(ap: Apartment, variant: Variant): { surface: FloorSurface; geometry: THREE.BufferGeometry }[] {
+  return ap.rooms
+    .filter((r) => !r.outdoor && inVariant(r, variant))
+    .map((r) => ({ surface: r.kind === 'bathroom' ? 'floorBathroom' : 'floor', geometry: planeFromPolygon(r.polygon, 0, 'up') }));
 }
 
 export function ceilingGeometries(ap: Apartment, variant: Variant): THREE.BufferGeometry[] {

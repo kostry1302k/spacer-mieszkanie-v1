@@ -14,6 +14,11 @@ export const TEXTURES = {
   greyPlaster: { id: 'Concrete024', size: 2, resolutions: ['1k'] },
   ceilingPlaster: { id: 'Concrete034', size: 2.5, resolutions: ['1k'] },
   concrete: { id: 'Concrete020', size: 2, resolutions: ['1k'] },
+  smokedOak: { id: 'wood_floor', size: 1.7, resolutions: ['1k', '2k'] },
+  oakHerringbone: { id: 'herringbone_parquet', size: 3.4, resolutions: ['1k', '2k'] },
+  paint: { id: 'PaintedPlaster017', size: 2, resolutions: ['1k'] },
+  concreteTiles: { id: 'PavingStones136', size: 2.4, resolutions: ['1k'] },
+  marbleTiles: { id: 'Tiles078', size: 1.2, resolutions: ['1k'] },
 } satisfies Record<string, TextureSet>;
 
 export type TextureKey = keyof typeof TEXTURES;

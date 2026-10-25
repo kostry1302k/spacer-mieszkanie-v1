@@ -16,6 +16,8 @@ export class WalkHud {
   private readonly hint = div('hint');
   private readonly overlay = div('overlay');
   private readonly fade = div('fade');
+  private readonly loading = div('loading-pill');
+  private subtitle = 'Stan surowy · M12, Skypoint 57';
 
   constructor(container: HTMLElement, private readonly touch: boolean, onStart: () => void) {
     this.overlay.innerHTML = `
@@ -26,7 +28,8 @@ export class WalkHud {
         <button type="button" class="primary">${touch ? 'Dotknij, aby zacząć' : 'Kliknij, aby zacząć'}</button>
       </div>`;
     this.overlay.querySelector('button')!.addEventListener('click', onStart);
-    container.append(this.crosshair, this.hint, this.overlay, this.fade);
+    this.loading.hidden = true;
+    container.append(this.crosshair, this.hint, this.overlay, this.fade, this.loading);
     this.setActive(false);
   }
 
@@ -39,8 +42,19 @@ export class WalkHud {
 
   /** Komunikat pod tytułem ekranu startowego (np. postęp ładowania); null przywraca opis. */
   setStatus(text: string | null): void {
-    const el = this.overlay.querySelector('.overlay-status')!;
-    el.textContent = text ?? 'Stan surowy · M12, Skypoint 57';
+    this.overlay.querySelector('.overlay-status')!.textContent = text ?? this.subtitle;
+  }
+
+  /** Opis pod tytułem ekranu startowego (bieżący tryb). */
+  setSubtitle(text: string): void {
+    this.subtitle = text;
+    this.setStatus(null);
+  }
+
+  /** Pasek „Wczytywanie…” u góry ekranu przy zmianie trybu; null ukrywa. */
+  setLoading(text: string | null): void {
+    this.loading.hidden = !text;
+    if (text) this.loading.textContent = text;
   }
 
   setPaused(): void {

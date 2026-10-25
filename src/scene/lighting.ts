@@ -5,7 +5,7 @@ import type { Apartment, Variant } from '../data/types';
 import { SKY_HDRI, type TextureRes } from '../data/materials';
 import { wallAxis } from '../core/plan';
 import { m } from '../core/units';
-import { bulbPositions } from '../geometry/fixtures';
+import { lampPositions, type CeilingFixture } from '../geometry/fixtures';
 import type { MaterialSet } from './materials';
 
 export type TimeOfDay = 'day' | 'evening';
@@ -98,11 +98,11 @@ export class Lighting {
     });
   }
 
-  /** Żarówki na wypustach dla wariantu (po przebudowie zestaw może się różnić). */
-  setVariant(variant: Variant): void {
+  /** Źródła światła na wypustach dla wariantu i rodzaju oprawy (po przebudowie zestaw się różni). */
+  setLamps(variant: Variant, fixture: CeilingFixture): void {
     this.bulbs.forEach((b) => b.dispose());
     this.bulbGroup.clear();
-    this.bulbs = bulbPositions(this.ap, variant).map((p) => {
+    this.bulbs = lampPositions(this.ap, variant, fixture).map((p) => {
       const light = new THREE.PointLight(BULB_COLOR, 0, 0, 2);
       light.position.set(m(p.x), m(p.z), m(p.y));
       this.bulbGroup.add(light);
