@@ -27,8 +27,13 @@ export interface FlatSpec {
   roughness: number;
   metalness?: number;
   opacity?: number;
-  /** Kolor świecenia (np. żarówka); jasność ustawia pora dnia. */
+  /** Kolor świecenia (żarówka, klosz, LED); świeci, gdy lampy są włączone. */
   emissive?: number;
+  /** Jasność świecenia po włączeniu lamp (domyślnie 3). */
+  glow?: number;
+  /** Świeci także w dzień (łazienka bez okna). */
+  alwaysOn?: boolean;
+  doubleSided?: boolean;
 }
 
 export interface TexturedSpec {
@@ -37,10 +42,12 @@ export interface TexturedSpec {
   tint?: number;
   roughness?: number;
   normalScale?: number;
+  doubleSided?: boolean;
 }
 
 export type MaterialSpec = FlatSpec | TexturedSpec;
-export type MaterialSet = Record<SurfaceKey, THREE.MeshStandardMaterial>;
+/** Materiały trybu: powierzchnie architektury (SurfaceKey) i paleta mebli (dowolne nazwy). */
+export type MaterialSet = Record<string, THREE.MeshStandardMaterial>;
 
 export interface MaterialOptions {
   maxResolution: TextureRes;
@@ -75,25 +82,28 @@ function createTextured(spec: TexturedSpec, opts: MaterialOptions): THREE.MeshSt
     roughnessMap: loadTexture(`${base}/roughness.jpg`, false, set.size, opts),
     roughness: spec.roughness ?? 1,
     color: spec.tint ?? 0xffffff,
+    side: spec.doubleSided ? THREE.DoubleSide : THREE.FrontSide,
   });
 }
 
 function createFlat(s: FlatSpec): THREE.MeshStandardMaterial {
   const transparent = s.opacity !== undefined && s.opacity < 1;
-  return new THREE.MeshStandardMaterial({
+  const mat = new THREE.MeshStandardMaterial({
     color: s.color,
     roughness: s.roughness,
     metalness: s.metalness ?? 0,
     transparent,
     opacity: s.opacity ?? 1,
     depthWrite: !transparent,
-    side: transparent ? THREE.DoubleSide : THREE.FrontSide,
+    side: transparent || s.doubleSided ? THREE.DoubleSide : THREE.FrontSide,
     emissive: s.emissive ?? 0x000000,
     emissiveIntensity: 0,
   });
+  if (s.emissive !== undefined) mat.userData = { glow: s.glow ?? 3, alwaysOn: Boolean(s.alwaysOn) };
+  return mat;
 }
 
-export function createMaterials(specs: Record<SurfaceKey, MaterialSpec>, opts: MaterialOptions): MaterialSet {
+export function createMaterials(specs: Record<string, MaterialSpec>, opts: MaterialOptions): MaterialSet {
   const entries = Object.entries(specs).map(([key, spec]) => {
     const mat = 'texture' in spec ? createTextured(spec, opts) : createFlat(spec);
     mat.name = key;

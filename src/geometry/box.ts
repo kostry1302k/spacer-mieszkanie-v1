@@ -22,7 +22,7 @@ export function boxGeometry(b: PlanBox): THREE.BufferGeometry {
  * Współrzędne UV z pozycji w świecie (rzut prostopadły na płaszczyznę ściany),
  * żeby faktury miały realną skalę (1 jednostka UV = 1 m) i ciągłość między kawałkami ścian.
  */
-export function applyWorldUV(g: THREE.BufferGeometry): THREE.BufferGeometry {
+export function applyWorldUV(g: THREE.BufferGeometry, scale = 1): THREE.BufferGeometry {
   const pos = g.getAttribute('position');
   const nor = g.getAttribute('normal');
   const uv = new Float32Array(pos.count * 2);
@@ -32,8 +32,8 @@ export function applyWorldUV(g: THREE.BufferGeometry): THREE.BufferGeometry {
     const az = Math.abs(nor.getZ(i));
     const [u, v] =
       ax >= ay && ax >= az ? [pos.getZ(i), pos.getY(i)] : ay >= az ? [pos.getX(i), pos.getZ(i)] : [pos.getX(i), pos.getY(i)];
-    uv[i * 2] = u;
-    uv[i * 2 + 1] = v;
+    uv[i * 2] = u * scale;
+    uv[i * 2 + 1] = v * scale;
   }
   g.setAttribute('uv', new THREE.BufferAttribute(uv, 2));
   return g;

@@ -13,6 +13,9 @@ import { DesktopControls } from './controls/desktop';
 import { TouchControls } from './controls/touch';
 import { staticColliders, type Rect } from './controls/collisions';
 import { DoorController } from './interaction/doors';
+import { placeFurniture, type PlacedFurniture } from './furniture/place';
+import { ModelCache } from './furniture/gltf';
+import { bulbLamps } from './geometry/fixtures';
 import { RoomLabels } from './ui/roomLabels';
 import { RoomList } from './ui/roomList';
 import { Minimap } from './ui/minimap';
@@ -110,6 +113,8 @@ let materials: MaterialSet | null = null;
 let loadedMode: ModeId | null = null;
 let environment: THREE.Group | null = null;
 let model: ApartmentModel | null = null;
+let furniture: PlacedFurniture | null = null;
+const models = new ModelCache();
 let colliders: Rect[] = [];
 let hoveredDoor: string | null = null;
 let modeRequest = 0;
@@ -150,6 +155,11 @@ function rebuild(): void {
     scene.remove(model.root);
     model.dispose();
   }
+  if (furniture) {
+    scene.remove(furniture.group);
+    furniture.dispose();
+    furniture = null;
+  }
   const s = store.get();
   const def = MODES[loadedMode];
   const variant = variantOf(s);
@@ -157,8 +167,13 @@ function rebuild(): void {
   scene.add(model.root);
   doors.setLeaves(model.leaves);
   colliders = staticColliders(apartment, variant);
+  if (def.furniture.length) {
+    furniture = placeFurniture(def.furniture, materials, models);
+    scene.add(furniture.group);
+    colliders.push(...furniture.colliders);
+  }
   labels.build(apartment, variant);
-  lighting.setLamps(variant, def.ceilingFixture);
+  lighting.setLamps(furniture ? furniture.lamps : def.ceilingFixture === 'bulb' ? bulbLamps(apartment, variant) : []);
   minimap.build(variant);
   roomList.build(variant);
   // Gracz mógł stać w miejscu nowej ścianki – wypychamy go do najbliższego wolnego miejsca.
@@ -221,7 +236,8 @@ if (isDebug) {
     return model ? doors.pick(walkCamera, model.occluders) : null;
   };
   const memory = () => ({ ...renderer.info.memory, textures: renderer.info.memory.textures, library: library.textureCount });
-  Object.assign(window, { app: { player, doors, desktop, touch, apartment, store, walk, pick, adaptive, memory } });
+  const stats = () => ({ calls: renderer.info.render.calls, triangles: renderer.info.render.triangles, lights: scene.children.length });
+  Object.assign(window, { app: { player, doors, desktop, touch, apartment, store, walk, pick, adaptive, memory, stats, renderer } });
 }
 
 const clock = new THREE.Clock();

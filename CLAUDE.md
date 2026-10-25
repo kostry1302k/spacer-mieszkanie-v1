@@ -63,6 +63,7 @@ src/
       index.ts             – definicje trybów (nazwa, materiały, wymuszony wariant, drzwi wewnętrzne, oprawy sufitowe)
       common.ts            – powierzchnie wspólne dla trybów (stolarka, elewacja, grzejniki, osprzęt)
       raw.ts               – tryb surowy: wylewka, szary tynk, gołe żarówki
+      styl1.ts, styl2.ts   – materiały wykończenia, paleta mebli i lista mebli (typ, środek obrysu w cm, kierunek frontu, parametry)
       styl1.ts             – wykończenie styl 1: materiały, meble, oprawy
       styl2.ts             – wykończenie styl 2
     materials.ts           – katalog tekstur PBR (id, rzeczywisty rozmiar kafla w m, dostępne rozdzielczości) i HDRI nieba
@@ -75,8 +76,11 @@ src/
     balcony.ts             – płyta, balustrada B1
     fixtures.ts            – grzejniki i osprzęt elektryczny (orientacyjny)
   furniture/
-    builders/              – meble modelowane proceduralnie (sofa, łóżko, szafki kuchenne, stoły…)
-    gltf.ts                – wstawianie modeli GLB z danych trybu
+    types.ts               – kontrakt buildera: części (geometria w cm + nazwa materiału), obrys, światła, modele GLB
+    parts.ts               – bryły pomocnicze (zaokrąglone pudełka, walce, pierścienie, fałdy zasłon)
+    builders/              – meble proceduralne: living (sofa, stoły, łóżko, szafki…), kitchen, bathroom, lighting, decor
+    place.ts               – rozmieszcza meble z danych trybu, łączy bryły w jedną siatkę na materiał, zbiera kolizje i lampy
+    gltf.ts                – modele GLB (Meshopt + WebP) przeskalowane do zadanej wysokości
   scene/
     renderer.ts            – WebGLRenderer, tone mapping (ACES/AgX), sRGB, resize, DPR
     materials.ts           – klucze powierzchni (SurfaceKey) i tworzenie zestawu materiałów trybu
@@ -107,6 +111,8 @@ src/
 - Ściany sąsiednie (21 cm) i zewnętrzna (39,5 cm) modelujemy z prawdziwą grubością, żeby ościeża i wnęki okien wyglądały wiarygodnie.
 - Tryby różnią się tylko danymi w `data/modes/*`; kod budujący scenę jest wspólny. Materiał lica ściany i podłogi wynika z rodzaju pomieszczenia (`Room.kind`), np. łazienka → `wallBathroom` / `floorBathroom`. Przełączenie trybu nie przeładowuje strony, zasoby trybu ładujemy przy pierwszym użyciu.
 - **Zasoby tylko CC0**: Poly Haven (tekstury, HDRI, modele), ambientCG (tekstury). Każdy plik wpisany do `public/assets/CREDITS.md` (URL, autor, licencja). Nie dodawać zasobów bez licencji ani z „free for personal use”.
+- Meble to dane (`FurnitureItem` w `data/modes/styl*.ts`), nie kod: przy rozstawianiu pilnuj pola skrzydeł drzwi (balkonowe X 69,5–159,5 i 379,5–469,5 do Y ≈ 490, łazienka, sypialnia) i przejść ≥ 45 cm (gracz ma promień 22 cm). Trasy sprawdzaj w konsoli `?debug` (`app.walk`).
+- Lampy są meblami (builder zwraca `lights`); źródła `alwaysOn` świecą też w dzień (łazienka bez okna). Na telefonie ograniczamy liczbę lamp: taśmy LED świecą tylko materiałem, bez osobnego źródła.
 - Gdy nie ma pasującego modelu CC0, mebel modelujemy proceduralnie w `furniture/builders`: zaokrąglone krawędzie (RoundedBoxGeometry/fazki), poprawne proporcje z katalogów (sofa 85 cm wys., siedzisko 45, blat 90, stół 75 itd.), osobne materiały dla tkaniny, drewna, metalu.
 - **Budżet wydajności (telefon średniej klasy):** ≥ 30 fps, cel 60 fps na komputerze; ≤ 150 draw calls; ≤ 300 tys. trójkątów; tekstury JPEG 1k na telefonie (2k tylko dla podłóg na komputerze; KTX2 rozważymy w Etapie 8, jeśli zabraknie pamięci GPU); pierwszy tryb do pobrania ≤ 20 MB; DPR na telefonie ≤ 1,5; jeden cień kierunkowy (mapa 1024 mobile / 2048 desktop), światła sztuczne bez cieni lub z najwyżej 1–2 cieniami na desktopie. Statyczne bryły łączymy (merge) per materiał.
 - Kod i identyfikatory po angielsku, interfejs i dokumentacja po polsku. Komentarze oszczędnie, tam gdzie logika nie jest oczywista.

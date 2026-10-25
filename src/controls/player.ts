@@ -3,7 +3,7 @@ import { m } from '../core/units';
 import { resolveCircle, type Rect } from './collisions';
 
 export const EYE_HEIGHT = 165; // cm
-export const PLAYER_RADIUS = 25; // cm
+export const PLAYER_RADIUS = 22; // cm – ok. szerokość barków
 const WALK_SPEED = 140; // cm/s
 const RUN_SPEED = 280;
 const ACCELERATION = 10; // im większa, tym szybciej rusza i hamuje

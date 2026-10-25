@@ -1,4 +1,6 @@
 import type { MaterialSpec, SurfaceKey } from '../../scene/materials';
+import type { FurnitureItem } from '../types';
+import { apartment } from '../apartment';
 import { COMMON } from './common';
 
 /**
@@ -14,5 +16,10 @@ export const styl2Materials: Record<SurfaceKey, MaterialSpec> = {
   ceiling: { texture: 'paint', tint: 0xf6f4ef, roughness: 0.95, normalScale: 0.2 },
   threshold: { texture: 'oakHerringbone', tint: 0xd9c8b3, roughness: 0.6 },
   doorInterior: { color: 0xe7e2da, roughness: 0.5 }, // drzwi bezprzylgowe, jasny greige
-  bulb: { color: 0xfff8ee, roughness: 0.3, emissive: 0xffd2a0 }, // oprawa tymczasowa, 3000 K
+  bulb: { color: 0xfff8ee, roughness: 0.3 },
 };
+
+/** Do czasu Etapu 7: płaskie oprawy na wypustach sufitowych wariantu po przebudowie. */
+export const styl2Furniture: FurnitureItem[] = apartment.fixtures
+  .filter((f) => f.type === 'ceilingOutlet' && (!f.variants || f.variants.includes('rebuild')))
+  .map((f) => ({ id: `disc-${f.id}`, type: 'ceilingDisc', x: f.x, y: f.y, facing: '+y' as const, params: { ceiling: f.z, cd: 30 } }));

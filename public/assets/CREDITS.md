@@ -2,7 +2,7 @@
 
 Wszystkie zasoby są na licencji [CC0 1.0](https://creativecommons.org/publicdomain/zero/1.0/) (domena publiczna).
 Plik generuje `npm run assets` (scripts/fetch-assets.ts) – nie edytuj ręcznie.
-Tekstury przeskalowane do 1k/2k i ponownie skompresowane (JPEG 80%).
+Tekstury przeskalowane do 1k/2k i ponownie skompresowane (JPEG 80%); modele 3D zapisane jako GLB (tekstury 512 px WebP, geometria Meshopt).
 
 | Rodzaj | Zasób | Źródło | Autor | Licencja | Zastosowanie |
 |---|---|---|---|---|---|
@@ -15,4 +15,10 @@ Tekstury przeskalowane do 1k/2k i ponownie skompresowane (JPEG 80%).
 | tekstura | [PaintedPlaster017](https://ambientcg.com/view?id=PaintedPlaster017) | ambientCG | ambientCG (Lennart Demes) | CC0 1.0 | malowane ściany i sufity (wykończenia) |
 | tekstura | [PavingStones136](https://ambientcg.com/view?id=PavingStones136) | ambientCG | ambientCG (Lennart Demes) | CC0 1.0 | łazienka – duże płyty w stylu betonu (styl 1) |
 | tekstura | [Tiles078](https://ambientcg.com/view?id=Tiles078) | ambientCG | ambientCG (Lennart Demes) | CC0 1.0 | łazienka – płytki w stylu marmuru (styl 2) |
+| tekstura | [Wood051](https://ambientcg.com/view?id=Wood051) | ambientCG | ambientCG (Lennart Demes) | CC0 1.0 | meble – fornir orzech (styl 1) |
+| tekstura | [Fabric030](https://ambientcg.com/view?id=Fabric030) | ambientCG | ambientCG (Lennart Demes) | CC0 1.0 | tapicerka – tkanina (sofa, łóżko) |
+| tekstura | [Carpet016](https://ambientcg.com/view?id=Carpet016) | ambientCG | ambientCG (Lennart Demes) | CC0 1.0 | dywany |
+| tekstura | [Wicker008A](https://ambientcg.com/view?id=Wicker008A) | ambientCG | ambientCG (Lennart Demes) | CC0 1.0 | rattan – lampa wisząca (styl 1) |
+| model 3D | [potted_plant_02](https://polyhaven.com/a/potted_plant_02) | Poly Haven | Rico Cilliers | CC0 1.0 | roślina w doniczce (salon) |
+| model 3D | [potted_plant_04](https://polyhaven.com/a/potted_plant_04) | Poly Haven | James Ray Cock | CC0 1.0 | mała roślina (łazienka, półki) |
 | HDRI | [noon_grass](https://polyhaven.com/a/noon_grass) | Poly Haven | Greg Zaal | CC0 1.0 | niebo i otoczenie za oknami, światło otoczenia |

@@ -26,7 +26,14 @@ interface HdriAsset {
   resolutions: Res[];
 }
 
-type Asset = TextureAsset | HdriAsset;
+interface ModelAsset {
+  kind: 'model';
+  source: 'polyhaven';
+  id: string;
+  use: string;
+}
+
+type Asset = TextureAsset | HdriAsset | ModelAsset;
 
 /** Lista zasobów. Dodając nowy, dopisz go tutaj i uruchom `npm run assets`. */
 const ASSETS: Asset[] = [
@@ -39,6 +46,12 @@ const ASSETS: Asset[] = [
   { kind: 'texture', source: 'ambientcg', id: 'PaintedPlaster017', use: 'malowane ściany i sufity (wykończenia)', resolutions: ['1k'] },
   { kind: 'texture', source: 'ambientcg', id: 'PavingStones136', use: 'łazienka – duże płyty w stylu betonu (styl 1)', resolutions: ['1k'] },
   { kind: 'texture', source: 'ambientcg', id: 'Tiles078', use: 'łazienka – płytki w stylu marmuru (styl 2)', resolutions: ['1k'] },
+  { kind: 'texture', source: 'ambientcg', id: 'Wood051', use: 'meble – fornir orzech (styl 1)', resolutions: ['1k'] },
+  { kind: 'texture', source: 'ambientcg', id: 'Fabric030', use: 'tapicerka – tkanina (sofa, łóżko)', resolutions: ['1k'] },
+  { kind: 'texture', source: 'ambientcg', id: 'Carpet016', use: 'dywany', resolutions: ['1k'] },
+  { kind: 'texture', source: 'ambientcg', id: 'Wicker008A', use: 'rattan – lampa wisząca (styl 1)', resolutions: ['1k'] },
+  { kind: 'model', source: 'polyhaven', id: 'potted_plant_02', use: 'roślina w doniczce (salon)' },
+  { kind: 'model', source: 'polyhaven', id: 'potted_plant_04', use: 'mała roślina (łazienka, półki)' },
   { kind: 'hdri', source: 'polyhaven', id: 'noon_grass', use: 'niebo i otoczenie za oknami, światło otoczenia', resolutions: ['1k', '2k'] },
 ];
 
@@ -102,6 +115,30 @@ async function fetchPolyHavenHdri(a: HdriAsset): Promise<Credit> {
   return { asset: a, url: `https://polyhaven.com/a/${a.id}`, authors: await polyHavenAuthors(a.id) };
 }
 
+/** Model glTF z Poly Haven (1k) → jeden plik GLB: tekstury 512 px WebP, geometria Meshopt. */
+async function fetchPolyHavenModel(a: ModelAsset): Promise<Credit> {
+  type File = { url: string; include?: Record<string, { url: string }> };
+  const files = await json<{ gltf: Record<string, { gltf: File }> }>(`https://api.polyhaven.com/files/${a.id}`);
+  const gltf = files.gltf['1k'].gltf;
+  const tmp = mkdtempSync(join(tmpdir(), `ph-${a.id}-`));
+  const main = join(tmp, `${a.id}.gltf`);
+  await download(gltf.url, main);
+  for (const [path, file] of Object.entries(gltf.include ?? {})) {
+    if (path.includes('..')) throw new Error(`Poly Haven ${a.id}: podejrzana ścieżka ${path}`);
+    mkdirSync(join(tmp, path, '..'), { recursive: true });
+    await download(file.url, join(tmp, path));
+  }
+  const dir = join(OUT, 'models');
+  mkdirSync(dir, { recursive: true });
+  execFileSync(
+    join(import.meta.dirname, '..', 'node_modules', '.bin', 'gltf-transform'),
+    ['optimize', main, join(dir, `${a.id}.glb`), '--compress', 'meshopt', '--texture-compress', 'webp', '--texture-size', '512'],
+    { stdio: 'ignore' },
+  );
+  rmSync(tmp, { recursive: true, force: true });
+  return { asset: a, url: `https://polyhaven.com/a/${a.id}`, authors: await polyHavenAuthors(a.id) };
+}
+
 async function polyHavenAuthors(id: string): Promise<string> {
   const info = await json<{ authors: Record<string, string> }>(`https://api.polyhaven.com/info/${id}`);
   return Object.keys(info.authors).join(', ');
@@ -135,7 +172,7 @@ async function fetchAmbientCgTexture(a: TextureAsset): Promise<Credit> {
 function writeCredits(credits: Credit[]): void {
   const rows = credits.map(
     ({ asset, url, authors }) =>
-      `| ${asset.kind === 'hdri' ? 'HDRI' : 'tekstura'} | [${asset.id}](${url}) | ${asset.source === 'polyhaven' ? 'Poly Haven' : 'ambientCG'} | ${authors} | CC0 1.0 | ${asset.use} |`,
+      `| ${asset.kind === 'hdri' ? 'HDRI' : asset.kind === 'model' ? 'model 3D' : 'tekstura'} | [${asset.id}](${url}) | ${asset.source === 'polyhaven' ? 'Poly Haven' : 'ambientCG'} | ${authors} | CC0 1.0 | ${asset.use} |`,
   );
   writeFileSync(
     join(OUT, 'CREDITS.md'),
@@ -143,7 +180,7 @@ function writeCredits(credits: Credit[]): void {
 
 Wszystkie zasoby są na licencji [CC0 1.0](https://creativecommons.org/publicdomain/zero/1.0/) (domena publiczna).
 Plik generuje \`npm run assets\` (scripts/fetch-assets.ts) – nie edytuj ręcznie.
-Tekstury przeskalowane do 1k/2k i ponownie skompresowane (JPEG ${JPEG_QUALITY}%).
+Tekstury przeskalowane do 1k/2k i ponownie skompresowane (JPEG ${JPEG_QUALITY}%); modele 3D zapisane jako GLB (tekstury 512 px WebP, geometria Meshopt).
 
 | Rodzaj | Zasób | Źródło | Autor | Licencja | Zastosowanie |
 |---|---|---|---|---|---|
@@ -163,7 +200,13 @@ const credits: Credit[] = [];
 for (const a of ASSETS) {
   process.stdout.write(`↓ ${a.source} ${a.id} … `);
   credits.push(
-    a.kind === 'hdri' ? await fetchPolyHavenHdri(a) : a.source === 'polyhaven' ? await fetchPolyHavenTexture(a) : await fetchAmbientCgTexture(a),
+    a.kind === 'hdri'
+      ? await fetchPolyHavenHdri(a)
+      : a.kind === 'model'
+        ? await fetchPolyHavenModel(a)
+        : a.source === 'polyhaven'
+          ? await fetchPolyHavenTexture(a)
+          : await fetchAmbientCgTexture(a),
   );
   console.log('ok');
 }

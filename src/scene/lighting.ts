@@ -1,11 +1,11 @@
 import * as THREE from 'three';
 import { RGBELoader } from 'three/addons/loaders/RGBELoader.js';
 import { RectAreaLightUniformsLib } from 'three/addons/lights/RectAreaLightUniformsLib.js';
-import type { Apartment, Variant } from '../data/types';
+import type { Apartment } from '../data/types';
 import { SKY_HDRI, type TextureRes } from '../data/materials';
 import { wallAxis } from '../core/plan';
 import { m } from '../core/units';
-import { lampPositions, type CeilingFixture } from '../geometry/fixtures';
+import type { Lamp } from '../furniture/place';
 import type { MaterialSet } from './materials';
 
 export type TimeOfDay = 'day' | 'evening';
@@ -19,39 +19,37 @@ const PRESETS: Record<TimeOfDay, {
   fill: number; // rozproszone odbicia (HemisphereLight)
   environment: number;
   background: number;
-  bulbs: number; // cd na żarówkę
-  bulbGlow: number;
+  lampsOn: boolean; // lampy sztuczne (poza tymi, które świecą zawsze – np. łazienka bez okna)
 }> = {
-  day: { exposure: 1.05, sun: 3.2, sky: 7, skyColor: 0xdde8f7, fill: 0.8, environment: 0.35, background: 1, bulbs: 0, bulbGlow: 0 },
-  evening: { exposure: 1, sun: 0, sky: 0.35, skyColor: 0x5d6f9c, fill: 0.15, environment: 0.04, background: 0.06, bulbs: 20, bulbGlow: 4 },
+  day: { exposure: 1.05, sun: 3.2, sky: 7, skyColor: 0xdde8f7, fill: 0.8, environment: 0.35, background: 1, lampsOn: false },
+  evening: { exposure: 0.85, sun: 0, sky: 0.35, skyColor: 0x5d6f9c, fill: 0.15, environment: 0.04, background: 0.06, lampsOn: true },
 };
-
-const BULB_COLOR = 0xffc58a; // ok. 2700 K
 
 /**
  * Światło dzienne i wieczorne:
  * - niebo z HDRI (tło i odbicia), słońce z południa z cieniami,
  * - prostokątne źródła w otworach drzwi balkonowych (światło nieba wpadające do środka),
- * - wieczorem ciepłe gołe żarówki na wypustach sufitowych.
+ * - lampy z danych trybu (żarówki w stanie surowym, oprawy w wykończeniach) – wieczorem;
+ *   lampy oznaczone `alwaysOn` (łazienka bez okna) świecą też w dzień.
  */
 export class Lighting {
   readonly group = new THREE.Group();
   private readonly sun: THREE.DirectionalLight;
   private readonly fill = new THREE.HemisphereLight(0xe6edf5, 0xb3a898, 1);
   private readonly windows: THREE.RectAreaLight[] = [];
-  private bulbs: THREE.PointLight[] = [];
-  private readonly bulbGroup = new THREE.Group();
+  private lamps: { light: THREE.PointLight; lamp: Lamp }[] = [];
+  private readonly lampGroup = new THREE.Group();
   private time: TimeOfDay = 'day';
 
   constructor(
-    private readonly ap: Apartment,
+    ap: Apartment,
     private readonly scene: THREE.Scene,
     private readonly renderer: THREE.WebGLRenderer,
     shadowMapSize: number,
   ) {
     RectAreaLightUniformsLib.init();
     this.group.name = 'lighting';
-    this.group.add(this.fill, this.bulbGroup);
+    this.group.add(this.fill, this.lampGroup);
 
     // Słońce dla Warszawy w październiku ok. 13:00: wysokość ok. 27°, lekko na zachód od południa.
     const { x0, x1, y0, y1 } = ap.interior;
@@ -98,15 +96,15 @@ export class Lighting {
     });
   }
 
-  /** Źródła światła na wypustach dla wariantu i rodzaju oprawy (po przebudowie zestaw się różni). */
-  setLamps(variant: Variant, fixture: CeilingFixture): void {
-    this.bulbs.forEach((b) => b.dispose());
-    this.bulbGroup.clear();
-    this.bulbs = lampPositions(this.ap, variant, fixture).map((p) => {
-      const light = new THREE.PointLight(BULB_COLOR, 0, 0, 2);
-      light.position.set(m(p.x), m(p.z), m(p.y));
-      this.bulbGroup.add(light);
-      return light;
+  /** Podmienia źródła światła lamp (po zmianie trybu albo wariantu). */
+  setLamps(lamps: Lamp[]): void {
+    this.lamps.forEach(({ light }) => light.dispose());
+    this.lampGroup.clear();
+    this.lamps = lamps.map((lamp) => {
+      const light = new THREE.PointLight(lamp.color, 0, 0, 2);
+      light.position.set(m(lamp.x), m(lamp.z), m(lamp.y));
+      this.lampGroup.add(light);
+      return { light, lamp };
     });
     this.apply();
   }
@@ -128,10 +126,15 @@ export class Lighting {
     }
     this.scene.environmentIntensity = p.environment;
     this.scene.backgroundIntensity = p.background;
-    for (const b of this.bulbs) {
-      b.intensity = p.bulbs;
-      b.visible = p.bulbs > 0;
+    for (const { light, lamp } of this.lamps) {
+      const on = p.lampsOn || Boolean(lamp.alwaysOn);
+      light.intensity = on ? lamp.intensity : 0;
+      light.visible = on;
     }
-    if (materials) materials.bulb.emissiveIntensity = p.bulbGlow;
+    // Świecące klosze, żarówki i taśmy LED.
+    for (const mat of Object.values(materials ?? {})) {
+      const glow = mat.userData.glow as number | undefined;
+      if (glow !== undefined) mat.emissiveIntensity = p.lampsOn || mat.userData.alwaysOn ? glow : 0;
+    }
   }
 }

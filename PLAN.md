@@ -86,6 +86,8 @@ Każdy etap kończy się wersją, którą da się otworzyć w przeglądarce: `np
 
 **Gotowe, gdy:** styl 1 jest rozpoznawalny względem zdjęć z `materialy/style/styl-1`, spacer płynny na telefonie.
 
+*Stan po realizacji:* w salonie (13,8 m² z aneksem) przy sofie i ścianie TV mieści się okrągły stół dla 2 osób, nie owalny dla 4 – przy większym stole kuchnia i balkon byłyby odcięte. W sypialni nie ma komody ani fotela (przejście obok łóżka ma 58 cm). Modele GLB tylko dla roślin; reszta proceduralnie.
+
 ---
 
 ## Etap 7 – Wykończenie styl 2 (jasny minimalizm)

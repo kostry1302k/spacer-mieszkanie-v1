@@ -98,6 +98,20 @@ export interface Fixture {
   variants?: Variant[];
 }
 
+/** Mebel / element wyposażenia z danych trybu. Builder wg `type` (src/furniture/builders). */
+export interface FurnitureItem {
+  id: string;
+  type: string;
+  /** Środek obrysu w rzucie (cm). */
+  x: number;
+  y: number;
+  /** Kierunek, w który zwrócony jest front mebla. */
+  facing: '+x' | '-x' | '+y' | '-y';
+  /** Wysokość podstawy nad podłogą (np. szafki wiszące, telewizor). */
+  z?: number;
+  params?: Record<string, number | string | boolean>;
+}
+
 export interface Balcony {
   slab: { x0: number; y0: number; x1: number; y1: number; thickness: number };
   railing: { inset: number; height: number };
