@@ -30,6 +30,31 @@ export interface DoorLeaf {
   door: Door;
   pivot: THREE.Group;
   openSign: 1 | -1;
+  /** Geometria skrzydła w rzucie (cm) – do kolizji i minimapy. */
+  plan: LeafPlan;
+}
+
+export interface LeafPlan {
+  /** Zawias. */
+  hx: number;
+  hy: number;
+  length: number;
+  thickness: number;
+  /** Kierunek od zawiasu wzdłuż zamkniętego skrzydła. */
+  along: [number, number];
+  /** Kierunek otwierania (normalna ściany, strona otwierania). */
+  swing: [number, number];
+}
+
+/** Narożniki skrzydła w rzucie przy danym kącie otwarcia (radiany). */
+export function leafCorners(p: LeafPlan, angle: number): [number, number][] {
+  const c = Math.cos(angle);
+  const s = Math.sin(angle);
+  // Kierunek skrzydła obraca się od `along` do `swing`; grubość od `-swing` do `along`.
+  const dir = [c * p.along[0] + s * p.swing[0], c * p.along[1] + s * p.swing[1]];
+  const thick = [-c * p.swing[0] + s * p.along[0], -c * p.swing[1] + s * p.along[1]];
+  const at = (a: number, b: number): [number, number] => [p.hx + dir[0] * a + thick[0] * b, p.hy + dir[1] * a + thick[1] * b];
+  return [at(0, 0), at(p.length, 0), at(p.length, p.thickness), at(0, p.thickness)];
 }
 
 export interface OpeningsOptions {
@@ -112,8 +137,17 @@ export function buildOpenings(ap: Apartment, opts: OpeningsOptions, mats: Materi
       pivot.add(mesh);
     }
     group.add(pivot);
-    const openSign = (wallAxis(wall) === 'x' ? -s * d : s * d) as 1 | -1;
-    leaves.push({ door, pivot, openSign });
+    const axis = wallAxis(wall);
+    const openSign = (axis === 'x' ? -s * d : s * d) as 1 | -1;
+    const plan: LeafPlan = {
+      hx: pivotPos.x0,
+      hy: pivotPos.y0,
+      length: leafA1 - leafA0,
+      thickness: style.leafThickness,
+      along: axis === 'x' ? [d, 0] : [0, d],
+      swing: axis === 'x' ? [0, s] : [s, 0],
+    };
+    leaves.push({ door, pivot, openSign, plan });
   }
 
   for (const [key, geos] of staticParts) {

@@ -54,7 +54,7 @@ src/
     state.ts               – stan: tryb, pora dnia, nowa ścianka, pozycja gracza; prosty event bus
     quality.ts             – profil jakości (mobile/desktop): rozdzielczość, cienie, tekstury
     assets.ts              – ładowanie i cache tekstur/modeli, lazy-load per tryb
-    debug.ts               – tryb `?debug` w adresie: licznik FPS i pomoce deweloperskie
+    debug.ts               – tryb `?debug` w adresie: licznik FPS; w konsoli `app.walk(...)`, `app.pick()` do testów
   data/
     apartment.ts           – JEDYNY plik geometrii: ściany, otwory, drzwi, okna, szachty, pokoje, wysokości, balkon, grzejniki, elektryka
     types.ts               – typy danych (Wall, Opening, Door, Room, Fixture…)
@@ -88,12 +88,12 @@ src/
   interaction/
     doors.ts               – raycast/celownik, otwieranie drzwi (E/klik/tap), animacja skrzydła
   ui/
-    hud.ts                 – układ HUD, ekran ładowania, instrukcja sterowania
+    hud.ts                 – HUD spaceru: celownik, podpowiedź, ekran startowy/pauzy, przyciemnienie przy przejściu
     modeSwitch.ts          – przełącznik trybów i ścianki
     dayNight.ts            – przełącznik dzień/wieczór
     minimap.ts             – minimapa 2D (canvas) rysowana z apartment.ts + pozycja i kierunek patrzenia
     roomList.ts            – lista pokoi, teleport do punktu startowego pokoju
-    mockupPanel.ts         – panel makiety: widok 3D / z góry, nowa ścianka, sufit, etykiety
+    viewPanel.ts           – panel widoku: Spacer / Makieta / Z góry, nowa ścianka, sufit, etykiety
     roomLabels.ts          – podpisy pokoi z metrażem (CSS2D)
   styles/main.css
 ```

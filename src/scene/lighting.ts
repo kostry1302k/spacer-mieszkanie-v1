@@ -10,7 +10,7 @@ export function createDaylight(ap: Apartment, shadowMapSize: number): THREE.Grou
   const group = new THREE.Group();
   group.name = 'daylight';
 
-  group.add(new THREE.HemisphereLight(0xdfe8f2, 0x8a8072, 1.4));
+  group.add(new THREE.HemisphereLight(0xe6edf5, 0xb3a898, 2.2));
 
   const { x0, x1, y0, y1 } = ap.interior;
   const center = new THREE.Vector3(m((x0 + x1) / 2), 0, m((y0 + y1) / 2));

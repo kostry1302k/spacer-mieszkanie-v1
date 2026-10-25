@@ -3,7 +3,7 @@ import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import type { Apartment } from '../data/types';
 import { m } from '../core/units';
 
-export type ViewMode = 'orbit' | 'top';
+export type ViewMode = 'orbit' | 'top' | 'off';
 
 /** Widoki makiety: kamera orbitalna 3D i rzut z góry (ortogonalny, północ u góry jak na rzucie). */
 export class MockupViews {
@@ -75,6 +75,6 @@ export class MockupViews {
   }
 
   update(): void {
-    (this.mode === 'orbit' ? this.orbit : this.pan).update();
+    if (this.mode !== 'off') (this.mode === 'orbit' ? this.orbit : this.pan).update();
   }
 }

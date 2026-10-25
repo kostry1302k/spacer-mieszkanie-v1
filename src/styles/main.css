@@ -55,7 +55,7 @@ body {
 .fps {
   position: fixed;
   right: max(12px, env(safe-area-inset-right));
-  top: max(12px, env(safe-area-inset-top));
+  bottom: max(12px, env(safe-area-inset-bottom));
   padding: 4px 8px;
   border-radius: 6px;
   background: var(--hud-bg);
@@ -140,4 +140,175 @@ body {
 
 .segmented button.active {
   background: rgba(255, 255, 255, 0.18);
+}
+
+[hidden] {
+  display: none !important;
+}
+
+/* Spacer: celownik, podpowiedź, ekran startowy, przyciemnienie */
+.crosshair {
+  position: fixed;
+  left: 50%;
+  top: 50%;
+  width: 6px;
+  height: 6px;
+  margin: -3px 0 0 -3px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 0 0 1.5px rgba(0, 0, 0, 0.45);
+}
+
+.hint {
+  position: fixed;
+  left: 50%;
+  top: calc(50% + 28px);
+  transform: translateX(-50%);
+  padding: 6px 12px;
+  border-radius: var(--radius);
+  background: var(--hud-bg);
+  font-size: 14px;
+  white-space: nowrap;
+}
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 16px;
+  background: rgba(20, 18, 16, 0.45);
+  pointer-events: auto;
+}
+
+.overlay-card {
+  width: min(380px, 100%);
+  padding: 24px;
+  border-radius: 14px;
+  background: rgba(28, 26, 24, 0.9);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  text-align: center;
+}
+
+.overlay-card h1 {
+  margin: 0 0 4px;
+  font-size: 22px;
+  font-weight: 600;
+}
+
+.overlay-status {
+  margin: 0 0 16px;
+  color: var(--hud-muted);
+  font-size: 13px;
+}
+
+.keys {
+  margin: 0 0 20px;
+  padding: 0;
+  list-style: none;
+  text-align: left;
+  font-size: 14px;
+  line-height: 2;
+}
+
+kbd {
+  display: inline-block;
+  min-width: 22px;
+  margin-right: 3px;
+  padding: 0 5px;
+  border-radius: 5px;
+  background: rgba(255, 255, 255, 0.14);
+  font: 12px/20px ui-monospace, Menlo, monospace;
+  text-align: center;
+}
+
+.primary {
+  width: 100%;
+  min-height: 44px;
+  border: 0;
+  border-radius: 10px;
+  background: #c9a27a;
+  color: #1c1a18;
+  font: 600 15px system-ui, sans-serif;
+  cursor: pointer;
+}
+
+.fade {
+  position: fixed;
+  inset: 0;
+  background: #000;
+  opacity: 0;
+  transition: opacity 0.18s;
+  pointer-events: none;
+}
+
+.fade.on {
+  opacity: 1;
+}
+
+/* Prawa kolumna: lista pokoi i minimapa */
+.sidebar {
+  position: fixed;
+  top: max(12px, env(safe-area-inset-top));
+  right: max(12px, env(safe-area-inset-right));
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+  pointer-events: auto;
+}
+
+.minimap {
+  border-radius: var(--radius);
+  background: var(--hud-bg);
+}
+
+.rooms {
+  position: relative;
+  border-radius: var(--radius);
+  background: var(--hud-bg);
+  font-size: 14px;
+}
+
+.rooms summary {
+  padding: 8px 12px;
+  cursor: pointer;
+  list-style: none;
+}
+
+.rooms summary::after {
+  content: ' ▾';
+  color: var(--hud-muted);
+}
+
+.rooms[open] summary::after {
+  content: ' ▴';
+}
+
+.rooms-list {
+  display: flex;
+  flex-direction: column;
+  padding: 0 6px 6px;
+}
+
+.rooms-list button {
+  min-height: 34px;
+  padding: 0 10px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--hud-fg);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.rooms-list button:hover {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.panel,
+.sidebar {
+  z-index: 2;
 }
