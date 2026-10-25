@@ -52,7 +52,7 @@ src/
     units.ts               – cm → m (dane w cm, scena w metrach: 1 jednostka = 1 m)
     plan.ts                – obliczenia na rzucie: pole i środek wielokąta, oś ściany, filtr wariantu (bez zależności, używa go też check-data)
     state.ts               – stan: tryb, pora dnia, nowa ścianka, pozycja gracza; prosty event bus
-    quality.ts             – profil jakości (mobile/desktop): rozdzielczość, cienie, tekstury
+    quality.ts             – profil jakości (mobile/desktop) i automatyczne obniżanie (DPR, potem cienie) przy FPS < 30
     assets.ts              – ładowanie i cache tekstur/modeli, lazy-load per tryb
     debug.ts               – tryb `?debug` w adresie: licznik FPS; w konsoli `app.walk(...)`, `app.pick()` do testów
   data/
@@ -83,7 +83,7 @@ src/
   controls/
     player.ts              – pozycja, prędkość, wysokość oczu 165 cm
     desktop.ts             – pointer lock, WASD/strzałki, Shift = szybciej
-    touch.ts               – wirtualny joystick (lewa połowa) + przeciąganie do rozglądania (prawa)
+    touch.ts               – joystick pod lewym kciukiem (lewa dolna część ekranu), przeciąganie = rozglądanie, dotknięcie = drzwi
     collisions.ts          – kolizje okrąg–odcinki z danych, uwzględnia stan drzwi
   interaction/
     doors.ts               – raycast/celownik, otwieranie drzwi (E/klik/tap), animacja skrzydła

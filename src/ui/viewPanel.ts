@@ -11,16 +11,22 @@ type ToggleKey = 'rebuild' | 'ceiling' | 'labels';
 
 const VIEW_LABELS: Record<AppView, string> = { walk: 'Spacer', orbit: 'Makieta', top: 'Z góry' };
 
-/** Panel widoku: spacer / makieta 3D / rzut z góry, wariant ścianki oraz opcje makiety. */
+/**
+ * Panel widoku: spacer / makieta 3D / rzut z góry, wariant ścianki oraz opcje makiety.
+ * Na telefonie zwinięty pod przyciskiem „Menu”, żeby nie zasłaniał joysticka.
+ */
 export function createViewPanel(
   initial: ViewPanelState,
   views: AppView[],
+  collapsed: boolean,
   onChange: (state: ViewPanelState) => void,
 ): HTMLElement {
   const state = { ...initial };
-  const panel = document.createElement('div');
+  const panel = document.createElement('details');
   panel.className = 'panel';
+  panel.open = !collapsed;
   panel.innerHTML = `
+    <summary>Menu</summary>
     <div class="segmented" role="group" aria-label="Widok">
       ${views.map((v) => `<button type="button" data-view="${v}">${VIEW_LABELS[v]}</button>`).join('')}
     </div>

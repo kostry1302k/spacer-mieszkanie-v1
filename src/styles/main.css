@@ -91,9 +91,6 @@ body {
   position: fixed;
   left: max(12px, env(safe-area-inset-left));
   bottom: max(12px, env(safe-area-inset-bottom));
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
   padding: 12px;
   border-radius: var(--radius);
   background: var(--hud-bg);
@@ -101,6 +98,30 @@ body {
   pointer-events: auto;
   -webkit-backdrop-filter: blur(8px);
   backdrop-filter: blur(8px);
+}
+
+.panel > * + * {
+  margin-top: 8px;
+}
+
+.panel > summary {
+  cursor: pointer;
+  list-style: none;
+  font-weight: 600;
+}
+
+.panel > summary::-webkit-details-marker,
+.rooms summary::-webkit-details-marker {
+  display: none;
+}
+
+@media (pointer: fine) {
+  .panel > summary {
+    display: none;
+  }
+  .panel > summary + * {
+    margin-top: 0;
+  }
 }
 
 .panel label {
@@ -311,4 +332,73 @@ kbd {
 .panel,
 .sidebar {
   z-index: 2;
+}
+
+/* Joystick (ekran dotykowy) */
+.joystick {
+  position: fixed;
+  left: -60px;
+  top: -60px;
+  width: 120px;
+  height: 120px;
+  border: 2px solid rgba(255, 255, 255, 0.55);
+  border-radius: 50%;
+  background: rgba(28, 26, 24, 0.25);
+  pointer-events: none;
+  z-index: 3;
+}
+
+.joystick-knob {
+  position: absolute;
+  left: 34px;
+  top: 34px;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.75);
+}
+
+.key-icon {
+  display: inline-block;
+  width: 26px;
+  text-align: center;
+  color: #c9a27a;
+}
+
+.minimap {
+  cursor: zoom-in;
+}
+
+/* Telefon: menu zwinięte u góry po lewej, wolny dół ekranu dla kciuków */
+@media (pointer: coarse) {
+  .badge {
+    font-size: 11px;
+    padding: 4px 8px;
+  }
+  .panel {
+    top: calc(max(12px, env(safe-area-inset-top)) + 30px);
+    bottom: auto;
+    padding: 8px 12px;
+    max-width: calc(100vw - 170px);
+  }
+  .panel[open] {
+    max-width: none;
+  }
+  .panel label {
+    min-height: 36px;
+  }
+  .segmented button {
+    min-height: 38px;
+    padding: 0 10px;
+  }
+  .rooms summary {
+    padding: 8px 10px;
+  }
+  .rooms-list button {
+    min-height: 40px;
+  }
+  .hint {
+    top: auto;
+    bottom: calc(max(12px, env(safe-area-inset-bottom)) + 8px);
+  }
 }

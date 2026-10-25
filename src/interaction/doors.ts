@@ -40,9 +40,12 @@ export class DoorController {
     if (d) d.target = d.target > 0 ? 0 : OPEN_ANGLE;
   }
 
-  /** Drzwi na środku ekranu, jeśli nic ich nie zasłania i są w zasięgu ręki. */
-  pick(camera: THREE.Camera, occluders: THREE.Object3D[]): string | null {
-    this.raycaster.setFromCamera(this.center, camera);
+  /**
+   * Drzwi w danym punkcie ekranu (domyślnie środek – celownik), jeśli nic ich nie zasłania
+   * i są w zasięgu ręki. `ndc` to współrzędne -1..1.
+   */
+  pick(camera: THREE.Camera, occluders: THREE.Object3D[], ndc: THREE.Vector2 = this.center): string | null {
+    this.raycaster.setFromCamera(ndc, camera);
     const targets = [...occluders, ...this.doors.map((d) => d.leaf.pivot)];
     const hit = this.raycaster.intersectObjects(targets, true)[0];
     if (!hit) return null;

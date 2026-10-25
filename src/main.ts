@@ -9,6 +9,7 @@ import { createDaylight } from './scene/lighting';
 import { MockupViews } from './scene/views';
 import { Player } from './controls/player';
 import { DesktopControls } from './controls/desktop';
+import { TouchControls } from './controls/touch';
 import { staticColliders, type Rect } from './controls/collisions';
 import { DoorController } from './interaction/doors';
 import { RoomLabels } from './ui/roomLabels';
@@ -17,17 +18,16 @@ import { Minimap } from './ui/minimap';
 import { WalkHud } from './ui/hud';
 import { createViewPanel, type AppView, type ViewPanelState } from './ui/viewPanel';
 import { createFpsMeter, isDebug } from './core/debug';
+import { AdaptiveQuality, isTouchDevice as isTouch, qualityProfile } from './core/quality';
 import './styles/main.css';
-
-const isTouch = matchMedia('(pointer: coarse)').matches;
 
 const canvas = document.querySelector<HTMLCanvasElement>('#scene')!;
 const hudRoot = document.querySelector<HTMLElement>('#hud')!;
-const renderer = createRenderer({ canvas, maxPixelRatio: isTouch ? 1.5 : 2 });
+const renderer = createRenderer({ canvas, maxPixelRatio: qualityProfile.maxPixelRatio });
 
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(0xd9e2ea);
-scene.add(createDaylight(apartment, isTouch ? 1024 : 2048));
+scene.add(createDaylight(apartment, qualityProfile.shadowMapSize));
 
 // Widoki: spacer (kamera na wysokości oczu) i makieta (orbita / z góry).
 const walkCamera = new THREE.PerspectiveCamera(70, 1, 0.05, 100);
@@ -37,8 +37,16 @@ scene.add(labels.group);
 
 const player = new Player();
 const doors = new DoorController();
-const hud = new WalkHud(hudRoot, () => desktop.lock());
-const minimap = new Minimap(apartment, 170);
+const hud = new WalkHud(hudRoot, isTouch, () => startWalk());
+const MINIMAP_SIZES = isTouch ? [120, 240] : [170, 300];
+let minimapBig = false;
+const minimap = new Minimap(apartment, MINIMAP_SIZES[0]);
+minimap.element.title = 'Powiększ / zmniejsz mapę';
+minimap.element.addEventListener('click', () => {
+  minimapBig = !minimapBig;
+  minimap.resize(MINIMAP_SIZES[+minimapBig]);
+  minimap.build(variantOf(state));
+});
 const roomList = new RoomList(apartment, (room) => goToRoom(room));
 const desktop = new DesktopControls(canvas, player, {
   onInteract: () => hoveredDoor && doors.toggle(hoveredDoor),
@@ -48,6 +56,27 @@ const desktop = new DesktopControls(canvas, player, {
     if (!locked) hud.setPaused();
   },
 });
+// Na ekranie dotykowym spacer startuje bez blokady kursora i trwa do zmiany widoku.
+let touchWalking = false;
+const touch = new TouchControls(canvas, player, {
+  onTap: (x, y) => {
+    if (state.view !== 'walk' || !model) return;
+    const ndc = new THREE.Vector2((x / window.innerWidth) * 2 - 1, -(y / window.innerHeight) * 2 + 1);
+    const id = doors.pick(walkCamera, [model.root.getObjectByName('walls')!], ndc);
+    if (id) doors.toggle(id);
+  },
+});
+
+function startWalk(): void {
+  if (isTouch) {
+    touchWalking = true;
+    hud.setActive(true);
+  } else {
+    desktop.lock();
+  }
+}
+
+const walkActive = () => desktop.locked || touchWalking;
 
 const sidebar = document.createElement('div');
 sidebar.className = 'sidebar';
@@ -56,6 +85,8 @@ hudRoot.appendChild(sidebar);
 
 bindResize(renderer, (w, h) => {
   walkCamera.aspect = w / h;
+  // Na pionowym ekranie szerszy kąt w pionie, żeby w poziomie nie widzieć „przez dziurkę od klucza”.
+  walkCamera.fov = w < h ? Math.min(90, THREE.MathUtils.radToDeg(2 * Math.atan(Math.tan(THREE.MathUtils.degToRad(35)) / (w / h)))) : 70;
   walkCamera.updateProjectionMatrix();
   views.resize(w, h);
   labels.renderer.setSize(w, h);
@@ -66,8 +97,7 @@ let model: ApartmentModel | null = null;
 let colliders: Rect[] = [];
 let hoveredDoor: string | null = null;
 
-// Spacer na telefonie (joystick) dojdzie w Etapie 3 – do tego czasu na ekranie dotykowym tylko makieta.
-const availableViews: AppView[] = isTouch ? ['orbit', 'top'] : ['walk', 'orbit', 'top'];
+const availableViews: AppView[] = ['walk', 'orbit', 'top'];
 let state: ViewPanelState = { view: availableViews[0], rebuild: false, ceiling: false, labels: true };
 
 const variantOf = (s: ViewPanelState): Variant => (s.rebuild ? 'rebuild' : 'developer');
@@ -95,10 +125,13 @@ function applyView(): void {
   labels.setVisible(!walk && state.labels);
   views.setMode(walk ? 'off' : state.view === 'top' ? 'top' : 'orbit');
   desktop.enabled = walk;
+  touch.enabled = walk;
   sidebar.hidden = !walk;
-  if (walk) hud.setActive(desktop.locked);
+  if (walk) hud.setActive(walkActive());
   else {
     desktop.unlock();
+    touch.reset();
+    touchWalking = false;
     hud.hideAll();
   }
 }
@@ -111,7 +144,7 @@ function goToRoom(room: Room): void {
 }
 
 hudRoot.appendChild(
-  createViewPanel(state, availableViews, (next) => {
+  createViewPanel(state, availableViews, isTouch, (next) => {
     const variantChanged = next.rebuild !== state.rebuild;
     state = next;
     if (variantChanged) rebuild();
@@ -123,6 +156,7 @@ const start = apartment.rooms.find((r) => r.id === 'hol')!.spawn;
 player.place(start.x, start.y, start.yaw);
 rebuild();
 
+const adaptive = new AdaptiveQuality(renderer, () => Object.values(materials).forEach((mat) => (mat.needsUpdate = true)));
 const tickFps = isDebug ? createFpsMeter() : null;
 if (isDebug) {
   // Pomoc do testów w konsoli: app.walk({ forward: 1, strafe: 0, run: false }, 2) symuluje 2 s chodu.
@@ -136,22 +170,24 @@ if (isDebug) {
     walkCamera.updateMatrixWorld();
     return doors.pick(walkCamera, model ? [model.root.getObjectByName('walls')!] : []);
   };
-  Object.assign(window, { app: { player, doors, desktop, apartment, walk, pick } });
+  Object.assign(window, { app: { player, doors, desktop, touch, apartment, walk, pick, adaptive } });
 }
 
 const clock = new THREE.Clock();
 renderer.setAnimationLoop(() => {
-  const dt = Math.min(clock.getDelta(), 0.05);
+  const frameTime = clock.getDelta();
+  const dt = Math.min(frameTime, 0.05);
   doors.update(dt);
 
   let camera: THREE.Camera;
   if (state.view === 'walk') {
-    player.update(dt, desktop.input, [...colliders, ...doors.colliders()]);
+    player.update(dt, touch.active ? touch.input : desktop.input, [...colliders, ...doors.colliders()]);
     player.applyToCamera(walkCamera);
     camera = walkCamera;
     const occluders = model ? [model.root.getObjectByName('walls')!] : [];
-    hoveredDoor = desktop.locked || isDebug ? doors.pick(walkCamera, occluders) : null;
-    hud.setHint(hoveredDoor && desktop.locked ? `E / klik – ${doors.isOpen(hoveredDoor) ? 'zamknij' : 'otwórz'} drzwi` : null);
+    hoveredDoor = walkActive() || isDebug ? doors.pick(walkCamera, occluders) : null;
+    const action = hoveredDoor && (doors.isOpen(hoveredDoor) ? 'zamknij' : 'otwórz');
+    hud.setHint(action && walkActive() ? (isTouch ? `Dotknij drzwi – ${action}` : `E / klik – ${action} drzwi`) : null);
     minimap.draw(player, doors.outlines());
   } else {
     views.update();
@@ -161,4 +197,5 @@ renderer.setAnimationLoop(() => {
   renderer.render(scene, camera);
   if (labels.group.visible) labels.renderer.render(scene, camera);
   tickFps?.();
+  adaptive.tick(frameTime);
 });
