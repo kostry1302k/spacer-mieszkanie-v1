@@ -50,6 +50,7 @@ src/
   main.ts                  – start aplikacji, spina moduły
   core/
     units.ts               – cm → m (dane w cm, scena w metrach: 1 jednostka = 1 m)
+    plan.ts                – obliczenia na rzucie: pole i środek wielokąta, oś ściany, filtr wariantu (bez zależności, używa go też check-data)
     state.ts               – stan: tryb, pora dnia, nowa ścianka, pozycja gracza; prosty event bus
     quality.ts             – profil jakości (mobile/desktop): rozdzielczość, cienie, tekstury
     assets.ts              – ładowanie i cache tekstur/modeli, lazy-load per tryb
@@ -58,20 +59,25 @@ src/
     apartment.ts           – JEDYNY plik geometrii: ściany, otwory, drzwi, okna, szachty, pokoje, wysokości, balkon, grzejniki, elektryka
     types.ts               – typy danych (Wall, Opening, Door, Room, Fixture…)
     modes/
-      raw.ts               – tryb surowy: materiały, osprzęt, światła
+      raw.ts               – tryb surowy: materiały (na razie płaskie kolory), osprzęt, światła
       styl1.ts             – wykończenie styl 1: materiały, meble, oprawy
       styl2.ts             – wykończenie styl 2
     materials.ts           – katalog materiałów PBR (id → pliki tekstur, skala UV, parametry)
   geometry/
-    walls.ts               – ściany z otworami (ekstruzja prostokątów z wycięciami), ościeża, nadproża
+    apartmentModel.ts      – składa całą bryłę mieszkania z danych dla wariantu i zestawu materiałów
+    box.ts                 – prostopadłościany w cm rzutu, UV w skali świata, łączenie geometrii
+    walls.ts               – ściany z otworami (podział na bryły między otworami), ościeża, nadproża
     floors.ts              – podłogi i sufity z obrysów pokoi, listwy
     openings.ts            – ościeżnice, skrzydła drzwi, drzwi balkonowe ze szkłem
     balcony.ts             – płyta, balustrada B1
+    fixtures.ts            – grzejniki i osprzęt elektryczny (orientacyjny)
   furniture/
     builders/              – meble modelowane proceduralnie (sofa, łóżko, szafki kuchenne, stoły…)
     gltf.ts                – wstawianie modeli GLB z danych trybu
   scene/
     renderer.ts            – WebGLRenderer, tone mapping (ACES/AgX), sRGB, resize, DPR
+    materials.ts           – klucze powierzchni (SurfaceKey) i tworzenie zestawu materiałów trybu
+    views.ts               – widoki makiety: kamera orbitalna 3D i rzut z góry
     lighting.ts            – słońce (DirectionalLight + cień), niebo/HDRI, światła sztuczne, dzień/wieczór
     environment.ts         – otoczenie za oknami (niebo, prosta bryła sąsiedztwa)
   controls/
@@ -87,6 +93,8 @@ src/
     dayNight.ts            – przełącznik dzień/wieczór
     minimap.ts             – minimapa 2D (canvas) rysowana z apartment.ts + pozycja i kierunek patrzenia
     roomList.ts            – lista pokoi, teleport do punktu startowego pokoju
+    mockupPanel.ts         – panel makiety: widok 3D / z góry, nowa ścianka, sufit, etykiety
+    roomLabels.ts          – podpisy pokoi z metrażem (CSS2D)
   styles/main.css
 ```
 

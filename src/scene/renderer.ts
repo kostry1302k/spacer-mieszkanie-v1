@@ -16,13 +16,12 @@ export function createRenderer({ canvas, maxPixelRatio }: RendererOptions): THRE
   return renderer;
 }
 
-/** Dopasowuje rozmiar renderera i proporcje kamery do okna, także po obrocie telefonu. */
-export function bindResize(renderer: THREE.WebGLRenderer, camera: THREE.PerspectiveCamera): void {
+/** Dopasowuje rozmiar renderera (i przekazanych odbiorców, np. kamer) do okna, także po obrocie telefonu. */
+export function bindResize(renderer: THREE.WebGLRenderer, onResize: (width: number, height: number) => void): void {
   const resize = () => {
     const { innerWidth: w, innerHeight: h } = window;
     renderer.setSize(w, h, false);
-    camera.aspect = w / h;
-    camera.updateProjectionMatrix();
+    onResize(w, h);
   };
   window.addEventListener('resize', resize);
   resize();

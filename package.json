@@ -6,13 +6,15 @@
   "description": "Wirtualny spacer po mieszkaniu M12, Skypoint 57",
   "scripts": {
     "dev": "vite --host",
-    "build": "tsc --noEmit && vite build",
-    "preview": "vite preview --host"
+    "build": "npm run check:data && tsc --noEmit && vite build",
+    "preview": "vite preview --host",
+    "check:data": "node scripts/check-data.ts"
   },
   "dependencies": {
     "three": "0.186.1"
   },
   "devDependencies": {
+    "@types/node": "26.6.5",
     "@types/three": "0.186.0",
     "typescript": "7.0.2",
     "vite": "8.3.5"

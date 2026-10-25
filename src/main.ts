@@ -1,58 +1,70 @@
 import * as THREE from 'three';
-import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
-import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
+import { apartment } from './data/apartment';
+import { rawFlat } from './data/modes/raw';
+import { buildApartmentModel, type ApartmentModel } from './geometry/apartmentModel';
 import { createRenderer, bindResize } from './scene/renderer';
+import { createFlatMaterials } from './scene/materials';
+import { createDaylight } from './scene/lighting';
+import { MockupViews } from './scene/views';
+import { RoomLabels } from './ui/roomLabels';
+import { createMockupPanel, type MockupPanelState } from './ui/mockupPanel';
 import { createFpsMeter, isDebug } from './core/debug';
 import './styles/main.css';
 
 const isTouch = matchMedia('(pointer: coarse)').matches;
 
 const canvas = document.querySelector<HTMLCanvasElement>('#scene')!;
+const hud = document.querySelector<HTMLElement>('#hud')!;
 const renderer = createRenderer({ canvas, maxPixelRatio: isTouch ? 1.5 : 2 });
 
 const scene = new THREE.Scene();
-scene.background = new THREE.Color(0xcfd8e0);
+scene.background = new THREE.Color(0xd9e2ea);
+scene.add(createDaylight(apartment, isTouch ? 1024 : 2048));
 
-const camera = new THREE.PerspectiveCamera(60, 1, 0.05, 100);
-camera.position.set(4, 3, 5);
-bindResize(renderer, camera);
+const views = new MockupViews(apartment, canvas);
+const labels = new RoomLabels(document.querySelector('#app')!);
+scene.add(labels.group);
+bindResize(renderer, (w, h) => {
+  views.resize(w, h);
+  labels.renderer.setSize(w, h);
+});
 
-const controls = new OrbitControls(camera, canvas);
-controls.target.set(0, 0.5, 0);
-controls.enableDamping = true;
-controls.maxPolarAngle = Math.PI / 2 - 0.05;
+const materials = createFlatMaterials(rawFlat);
+let model: ApartmentModel | null = null;
 
-// Scena testowa Etapu 0 – zostanie zastąpiona modelem mieszkania w Etapie 1.
-scene.add(new THREE.HemisphereLight(0xf4f1ea, 0x8a8072, 1.2));
+let state: MockupPanelState = { rebuild: false, ceiling: false, labels: true, view: 'orbit' };
 
-const sun = new THREE.DirectionalLight(0xfff1dc, 2.5);
-sun.position.set(3, 6, 4);
-sun.castShadow = true;
-sun.shadow.mapSize.setScalar(isTouch ? 1024 : 2048);
-scene.add(sun);
+function rebuild(): void {
+  model?.dispose();
+  if (model) scene.remove(model.root);
+  const variant = state.rebuild ? 'rebuild' : 'developer';
+  model = buildApartmentModel(apartment, { variant, interiorDoors: false }, materials);
+  scene.add(model.root);
+  labels.build(apartment, variant);
+  applyState();
+}
 
-const floor = new THREE.Mesh(
-  new THREE.PlaneGeometry(10, 10),
-  new THREE.MeshStandardMaterial({ color: 0x9a9289, roughness: 0.9 }),
+function applyState(): void {
+  if (model) model.ceilings.visible = state.ceiling && state.view === 'orbit';
+  labels.setVisible(state.labels);
+  views.setMode(state.view);
+}
+
+hud.appendChild(
+  createMockupPanel(state, (next) => {
+    const variantChanged = next.rebuild !== state.rebuild;
+    state = next;
+    if (variantChanged) rebuild();
+    else applyState();
+  }),
 );
-floor.rotation.x = -Math.PI / 2;
-floor.receiveShadow = true;
-scene.add(floor);
-
-const cube = new THREE.Mesh(
-  new RoundedBoxGeometry(1, 1, 1, 4, 0.06),
-  new THREE.MeshStandardMaterial({ color: 0x6b4a33, roughness: 0.55 }),
-);
-cube.position.y = 0.5;
-cube.castShadow = true;
-scene.add(cube);
+rebuild();
 
 const tickFps = isDebug ? createFpsMeter() : null;
-const clock = new THREE.Clock();
 
 renderer.setAnimationLoop(() => {
-  cube.rotation.y += clock.getDelta() * 0.4;
-  controls.update();
-  renderer.render(scene, camera);
+  views.update();
+  renderer.render(scene, views.camera);
+  labels.renderer.render(scene, views.camera);
   tickFps?.();
 });

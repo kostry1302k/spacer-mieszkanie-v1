@@ -24,7 +24,7 @@ Każdy etap kończy się wersją, którą da się otworzyć w przeglądarce: `np
 - Materiały płaskie (jednolite kolory), światło tymczasowe.
 - Widok „makieta”: kamera orbitalna nad mieszkaniem bez sufitu, przełącznik nowej ścianki (wstępny, w panelu debug).
 
-**Gotowe, gdy:** `check:data` przechodzi, model z góry zgadza się z rzutem wykonawczym (porównanie na nałożonym zrzucie rzutu w trybie debug), przełącznik pokazuje i ukrywa ściankę.
+**Gotowe, gdy:** `check:data` przechodzi, model z góry zgadza się z rzutem wykonawczym (porównanie widoku „Z góry” ze zrzutem rzutu; rzutów nie publikujemy, bo repozytorium jest publiczne), przełącznik pokazuje i ukrywa ściankę.
 
 ---
 
