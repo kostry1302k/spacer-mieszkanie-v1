@@ -43,7 +43,7 @@ export const mirrorBacklit: Builder = (p) => {
   const w = num(p, 'w', 55);
   const h = num(p, 'h', 75);
   return {
-    parts: [span('ledAlways', -w / 2 + 2, w / 2 - 2, 2, h - 2, -2.5, -1.5), span('mirror', -w / 2, w / 2, 0, h, -1.5, 0, 4)],
+    parts: [span('ledAlways', -w / 2 - 1.5, w / 2 + 1.5, -1.5, h + 1.5, -2.5, -1.5, 3), span('mirror', -w / 2, w / 2, 0, h, -1.5, 0, 4)],
     size: { w, d: 3, h },
     collide: false,
   };

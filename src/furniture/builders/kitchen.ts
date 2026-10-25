@@ -99,3 +99,16 @@ export const wallPanel: Builder = (p) => {
   const t = num(p, 't', 1);
   return { parts: [span(str(p, 'mat', 'stoneDark'), -w / 2, w / 2, 0, h, -t / 2, t / 2)], size: { w, d: t, h }, collide: false };
 };
+
+/** Reling ścienny z kilkoma zawieszonymi przyborami. */
+export const rail: Builder = (p) => {
+  const w = num(p, 'w', 90);
+  const mat = str(p, 'mat', 'blackMetal');
+  const parts: Part[] = [rod(mat, 0.8, w, 0, 0, 3), span(mat, -w / 2, -w / 2 + 1.5, -1.5, 1.5, 0, 3), span(mat, w / 2 - 1.5, w / 2, -1.5, 1.5, 0, 3)];
+  for (let i = 0; i < 4; i++) {
+    const x = -w / 2 + 15 + i * ((w - 30) / 3);
+    parts.push(span(mat, x - 0.3, x + 0.3, -6, 0, 2.7, 3.3)); // hak
+    parts.push(span(i % 2 ? 'steel' : 'shelfWhite', x - (i % 2 ? 1.5 : 6), x + (i % 2 ? 1.5 : 6), i % 2 ? -26 : -18, -6, 2, i % 2 ? 4 : 10)); // przybór / pojemnik
+  }
+  return { parts, size: { w, d: 6, h: 4 }, collide: false };
+};

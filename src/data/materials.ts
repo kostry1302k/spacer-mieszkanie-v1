@@ -20,6 +20,7 @@ export const TEXTURES = {
   concreteTiles: { id: 'PavingStones136', size: 2.4, resolutions: ['1k'] },
   marbleTiles: { id: 'Tiles078', size: 1.2, resolutions: ['1k'] },
   walnut: { id: 'Wood051', size: 1.2, resolutions: ['1k'] },
+  oak: { id: 'Wood049', size: 1.2, resolutions: ['1k'] },
   fabric: { id: 'Fabric030', size: 0.6, resolutions: ['1k'] },
   carpet: { id: 'Carpet016', size: 1, resolutions: ['1k'] },
   wicker: { id: 'Wicker008A', size: 0.35, resolutions: ['1k'] },

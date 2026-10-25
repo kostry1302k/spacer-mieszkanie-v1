@@ -69,6 +69,7 @@ export const tvCabinet: Builder = (p) => {
   const slat = 3;
   for (let x = -w / 2 + 2; x < w / 2 - 2; x += slat + 1.2) parts.push(span(body, x, x + slat, lift + 2, lift + h - 2, d / 2 - 2, d / 2, 0));
   parts.push(span('blackMatte', -w / 2 + 3, w / 2 - 3, lift + h - 0.2, lift + h + 0.3, -d / 2 + 3, d / 2 - 3)); // fuga blatu
+  if (p.ledUnder) parts.push(span('led', -w / 2 + 4, w / 2 - 4, lift - 0.6, lift, -d / 2 + 4, -d / 2 + 6)); // LED pod wiszącą szafką
   return { parts, size: { w, d, h: lift + h }, collide: true };
 };
 
@@ -134,9 +135,11 @@ export const bed: Builder = (p) => {
   const frame = str(p, 'frame', 'walnut');
   const d = l + 6; // wezgłowie
   const back = -d / 2;
+  // Tapicerowane: grubsze, zaokrąglone wezgłowie i rama w tkaninie.
+  const soft = p.upholstered ? 5 : 1;
   const parts: Part[] = [
-    span(frame, -w / 2 - 3, w / 2 + 3, 0, headH, back, back + 6, 1), // wezgłowie
-    span(frame, -w / 2 - 3, w / 2 + 3, 6, 32, back + 6, d / 2, 1), // rama
+    span(frame, -w / 2 - 3, w / 2 + 3, 0, headH, back, back + 6 + soft, soft), // wezgłowie
+    span(frame, -w / 2 - 3, w / 2 + 3, p.upholstered ? 2 : 6, 32, back + 6, d / 2, soft), // rama
     span('linenWhite', -w / 2 + 1, w / 2 - 1, 32, 52, back + 7, d / 2 - 2, 5), // materac
     span(str(p, 'duvet', 'duvet'), -w / 2, w / 2, 48, 58, back + 45, d / 2, 6), // kołdra
     span(str(p, 'throw', 'throw'), -w / 2 - 1, w / 2 + 1, 56, 59, d / 2 - 55, d / 2 - 20, 1.5), // koc

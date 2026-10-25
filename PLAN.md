@@ -98,6 +98,8 @@ Każdy etap kończy się wersją, którą da się otworzyć w przeglądarce: `np
 
 **Gotowe, gdy:** styl 2 jest rozpoznawalny względem zdjęć z `materialy/style/styl-2`, oba wykończenia przełączają się płynnie.
 
+*Stan po realizacji:* układ mebli jak w stylu 1 (te same sprawdzone przejścia), inne bryły i materiały. W sypialni zamiast szafy i biurka we wnęce – boazeria za łóżkiem (brak miejsca na zabudowę przy przejściu 58 cm); w kuchni bez wysokiej szafy z lustrem.
+
 ---
 
 ## Etap 8 – Optymalizacja i szlif

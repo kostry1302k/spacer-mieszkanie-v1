@@ -1,4 +1,5 @@
 // Oprawy oświetleniowe; każda oddaje też źródło światła (włączane wieczorem).
+import * as THREE from 'three';
 import type { Builder, Params, Part } from '../types';
 import { cylinder, sphere, span } from '../parts';
 
@@ -73,13 +74,46 @@ export const wallSpot: Builder = (p) => ({
   collide: false,
 });
 
-/** Tymczasowa oprawa natynkowa (płaski krążek). */
-export const ceilingDisc: Builder = (p) => {
+/** Żyrandol typu „sputnik”: pionowy pręt z ramionami zakończonymi mlecznymi kulami. */
+export const chandelierGlobes: Builder = (p) => {
+  const drop = num(p, 'drop', 80);
   const ceiling = num(p, 'ceiling', 270);
+  const arms = num(p, 'arms', 6);
+  const reach = num(p, 'reach', 38);
+  const hub = ceiling - drop;
+  const parts: Part[] = [cylinder('blackMetal', 6, 6, 2, 0, ceiling - 2, 0), cylinder('blackMetal', 0.8, 0.8, drop, 0, hub, 0), sphere('blackMetal', 3, 0, hub, 0, 16)];
+  for (let i = 0; i < arms; i++) {
+    const a = (i / arms) * Math.PI * 2;
+    const tilt = i % 2 ? 12 : -8; // ramiona na dwóch wysokościach
+    const [x, z] = [Math.cos(a) * reach, Math.sin(a) * reach];
+    const mid = { x: x / 2, z: z / 2 };
+    const len = Math.hypot(x, tilt, z);
+    const arm = cylinder('blackMetal', 0.5, 0.5, len, 0, -len / 2, 0, 8);
+    arm.geo.rotateX(Math.PI / 2);
+    arm.geo.lookAt(new THREE.Vector3(x, tilt, z));
+    arm.geo.translate(mid.x, hub + tilt / 2, mid.z);
+    parts.push(arm, sphere('opal', 7, x, hub + tilt, z, 20));
+  }
   return {
-    parts: [cylinder('opal', 15, 15, 4, 0, ceiling - 4, 0, 32)],
-    size: { w: 30, d: 30, h: ceiling },
+    parts,
+    size: { w: 2 * reach, d: 2 * reach, h: ceiling },
     collide: false,
-    lights: [{ x: 0, y: ceiling - 8, z: 0, intensity: num(p, 'cd', 30), color: color(p) }],
+    lights: [{ x: 0, y: hub - 5, z: 0, intensity: num(p, 'cd', 45), color: color(p) }],
+  };
+};
+
+/** Lampa podłogowa z lnianym abażurem. */
+export const floorLampShade: Builder = (p) => {
+  const h = num(p, 'h', 155);
+  return {
+    parts: [
+      cylinder('blackMetal', 13, 14, 2, 0, 0, 0, 32),
+      cylinder(str(p, 'stem', 'blackMetal'), 1, 1, h - 30, 0, 2, 0),
+      cylinder(str(p, 'shade', 'shadeLinen'), 18, 22, 30, 0, h - 30, 0, 40),
+      cylinder('opal', 4, 4, 6, 0, h - 26, 0, 16),
+    ],
+    size: { w: 44, d: 44, h },
+    collide: true,
+    lights: [{ x: 0, y: h - 22, z: 0, intensity: num(p, 'cd', 25), color: color(p) }],
   };
 };

@@ -49,4 +49,13 @@ export const FURNITURE_BASE = {
   tvScreen: { color: 0x08090a, roughness: 0.12, metalness: 0.2 },
   curtainLinen: { color: 0xd9d1c4, roughness: 1, doubleSided: true },
   curtainDark: { color: 0x3d2f27, roughness: 1, doubleSided: true },
+  curtainTaupe: { color: 0x9c8b7b, roughness: 1, doubleSided: true },
+  oakLight: { texture: 'oak', tint: 0xffffff, roughness: 0.65 },
+  panelDark: { texture: 'walnut', tint: 0x9a7a62, roughness: 0.75 },
+  blackFront: { color: 0x1c1c1d, roughness: 0.55 },
+  stoneLight: { color: 0xd9d3c9, roughness: 0.35 },
+  bedFabric: { texture: 'fabric', tint: 0xa79d91, roughness: 1, normalScale: 0.8 },
+  cushionOat: { texture: 'fabric', tint: 0xcbbca6, roughness: 1 },
+  cushionBlack: { texture: 'fabric', tint: 0x2b2a29, roughness: 1 },
+  shadeLinen: { color: 0xefe8dc, roughness: 0.9, emissive: 0xffe2bb, glow: 1.2, doubleSided: true },
 } satisfies Record<string, MaterialSpec>;

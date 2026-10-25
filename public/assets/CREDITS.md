@@ -16,6 +16,7 @@ Tekstury przeskalowane do 1k/2k i ponownie skompresowane (JPEG 80%); modele 3D z
 | tekstura | [PavingStones136](https://ambientcg.com/view?id=PavingStones136) | ambientCG | ambientCG (Lennart Demes) | CC0 1.0 | łazienka – duże płyty w stylu betonu (styl 1) |
 | tekstura | [Tiles078](https://ambientcg.com/view?id=Tiles078) | ambientCG | ambientCG (Lennart Demes) | CC0 1.0 | łazienka – płytki w stylu marmuru (styl 2) |
 | tekstura | [Wood051](https://ambientcg.com/view?id=Wood051) | ambientCG | ambientCG (Lennart Demes) | CC0 1.0 | meble – fornir orzech (styl 1) |
+| tekstura | [Wood049](https://ambientcg.com/view?id=Wood049) | ambientCG | ambientCG (Lennart Demes) | CC0 1.0 | meble – jasny dąb (styl 2) |
 | tekstura | [Fabric030](https://ambientcg.com/view?id=Fabric030) | ambientCG | ambientCG (Lennart Demes) | CC0 1.0 | tapicerka – tkanina (sofa, łóżko) |
 | tekstura | [Carpet016](https://ambientcg.com/view?id=Carpet016) | ambientCG | ambientCG (Lennart Demes) | CC0 1.0 | dywany |
 | tekstura | [Wicker008A](https://ambientcg.com/view?id=Wicker008A) | ambientCG | ambientCG (Lennart Demes) | CC0 1.0 | rattan – lampa wisząca (styl 1) |
