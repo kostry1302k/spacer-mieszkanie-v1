@@ -1,0 +1,137 @@
+# Wirtualny spacer – Mieszkanie M12, Skypoint 57
+
+Statyczna strona z wirtualnym spacerem po mieszkaniu 30,12 m² (hol, łazienka, pokój dzienny z aneksem, balkon; po przebudowie dodatkowo sypialnia). Widok z perspektywy człowieka, trzy tryby: stan surowy i dwa wykończenia (styl 1, styl 2). Działa w przeglądarce na komputerze i telefonie, publikowana jako statyczne pliki.
+
+Plan prac w etapach: [PLAN.md](PLAN.md).
+
+## Źródła prawdy
+1. [materialy/wymiary.md](materialy/wymiary.md) – **jedyne źródło wymiarów**. Ważniejsze niż skalowanie z rzutów.
+2. Rzut wykonawczy A.03 1:50 (`materialy/rzuty/A.03 RZUT 1 PIE╠ĘTRA (1).pdf`, 1,4 MB) – gdy w wymiary.md czegoś brakuje.
+3. Rzut budowlany 1:100 (drugi plik A.03, 0,7 MB), karta lokalu (dotyczy sąsiedniego M13) i koncept PNG – tylko odniesienie.
+4. `materialy/style/styl-1`, `styl-2` – zdjęcia inspiracji (opis niżej). Stylu 3 nie ma i nie będzie.
+
+`materialy/` jest tylko do odczytu, z wyjątkiem wymiary.md, który zmieniamy wyłącznie po decyzji właściciela i z wpisem w „Historii zmian”.
+
+## Najważniejsze decyzje (25.10.2026)
+- Wymiary z rzutu wykonawczego: 539 × 579,5, wysokość 270 we wszystkich trybach.
+- Balkon na **południe** (+Y = południe). Słońce realne dla Warszawy (52,2° N), domyślnie dzień w październiku.
+- Tryb surowy = stan deweloperski + przełącznik „pokaż nową ściankę”. Wykończenia = zawsze wariant po przebudowie (sypialnia 9,19 m²).
+- Łazienka: walk-in 90 × 80 z czarnym profilem, WC, umywalka, pralka. Bez wanny i suszarki.
+- Kuchnia w układzie deweloperskim (L wokół szachtu). Bez szafy w holu.
+- Drzwi balkonowe: jedno skrzydło rozwierne do środka przy zewnętrznym ościeżu, część przy filarze stała.
+- Grzejniki: po jednym na filarku 69,5 obok każdych drzwi balkonowych; brak na ścianie lewej.
+- Elektryka: typowy układ (gniazdka 30 cm, włączniki 110 cm, gniazdka nad blatem), oznaczony w danych jako `orientacyjny`.
+- Światło: dzień (słońce + niebo) i wieczór (ciepłe światło sztuczne), przełącznik w UI.
+- Hosting: GitHub Pages przez GitHub Actions. Apps Script odpada (HtmlService nie serwuje plików statycznych typu tekstury, GLB, KTX2; strona działa w piaskownicy iframe, co psuje pointer lock i ładowanie zasobów). Build z `base: './'`, więc działa też na Netlify/Cloudflare Pages.
+
+## Stos technologiczny
+- **Vite** + **TypeScript** (strict), moduły ES, bez frameworka UI (HUD w czystym DOM + CSS).
+- **Three.js** (wersja przypięta w package.json), dodatki z `three/addons`: `GLTFLoader`, `KTX2Loader`, `DRACOLoader`/meshopt, `RGBELoader`, `PointerLockControls` (lub własna implementacja).
+- Brak silnika fizyki: kolizje 2D (gracz to okrąg r = 25 cm, ściany to odcinki/prostokąty z danych).
+- Narzędzia zasobów (devDependencies/skrypty): `@gltf-transform/cli` (kompresja GLB), `toktx`/`basisu` lub `@gltf-transform` do KTX2.
+
+## Struktura plików
+```
+CLAUDE.md, PLAN.md
+index.html                 – szkielet strony, kontener canvas + HUD
+vite.config.ts             – base './', podział chunków
+package.json
+.github/workflows/deploy.yml – build i publikacja na GitHub Pages
+materialy/                 – materiały źródłowe (tylko odczyt)
+public/assets/
+  textures/<id>/           – tekstury PBR CC0 (KTX2; 1k mobile, 2k desktop)
+  models/<id>.glb          – meble GLB (skompresowane)
+  hdri/<id>.hdr            – niebo/otoczenie (małe, 1k)
+  CREDITS.md               – źródło, autor, licencja każdego zasobu
+scripts/
+  fetch-assets.ts          – pobiera zasoby z listy (Poly Haven API / ambientCG), konwertuje, zapisuje CREDITS
+  check-data.ts            – walidacja danych mieszkania (zamknięte obrysy, otwory w ścianach, metraże vs wymiary.md)
+src/
+  main.ts                  – start aplikacji, spina moduły
+  core/
+    units.ts               – cm → m (dane w cm, scena w metrach: 1 jednostka = 1 m)
+    state.ts               – stan: tryb, pora dnia, nowa ścianka, pozycja gracza; prosty event bus
+    quality.ts             – profil jakości (mobile/desktop): rozdzielczość, cienie, tekstury
+    assets.ts              – ładowanie i cache tekstur/modeli, lazy-load per tryb
+  data/
+    apartment.ts           – JEDYNY plik geometrii: ściany, otwory, drzwi, okna, szachty, pokoje, wysokości, balkon, grzejniki, elektryka
+    types.ts               – typy danych (Wall, Opening, Door, Room, Fixture…)
+    modes/
+      raw.ts               – tryb surowy: materiały, osprzęt, światła
+      styl1.ts             – wykończenie styl 1: materiały, meble, oprawy
+      styl2.ts             – wykończenie styl 2
+    materials.ts           – katalog materiałów PBR (id → pliki tekstur, skala UV, parametry)
+  geometry/
+    walls.ts               – ściany z otworami (ekstruzja prostokątów z wycięciami), ościeża, nadproża
+    floors.ts              – podłogi i sufity z obrysów pokoi, listwy
+    openings.ts            – ościeżnice, skrzydła drzwi, drzwi balkonowe ze szkłem
+    balcony.ts             – płyta, balustrada B1
+  furniture/
+    builders/              – meble modelowane proceduralnie (sofa, łóżko, szafki kuchenne, stoły…)
+    gltf.ts                – wstawianie modeli GLB z danych trybu
+  scene/
+    renderer.ts            – WebGLRenderer, tone mapping (ACES/AgX), sRGB, resize, DPR
+    lighting.ts            – słońce (DirectionalLight + cień), niebo/HDRI, światła sztuczne, dzień/wieczór
+    environment.ts         – otoczenie za oknami (niebo, prosta bryła sąsiedztwa)
+  controls/
+    player.ts              – pozycja, prędkość, wysokość oczu 165 cm
+    desktop.ts             – pointer lock, WASD/strzałki, Shift = szybciej
+    touch.ts               – wirtualny joystick (lewa połowa) + przeciąganie do rozglądania (prawa)
+    collisions.ts          – kolizje okrąg–odcinki z danych, uwzględnia stan drzwi
+  interaction/
+    doors.ts               – raycast/celownik, otwieranie drzwi (E/klik/tap), animacja skrzydła
+  ui/
+    hud.ts                 – układ HUD, ekran ładowania, instrukcja sterowania
+    modeSwitch.ts          – przełącznik trybów i ścianki
+    dayNight.ts            – przełącznik dzień/wieczór
+    minimap.ts             – minimapa 2D (canvas) rysowana z apartment.ts + pozycja i kierunek patrzenia
+    roomList.ts            – lista pokoi, teleport do punktu startowego pokoju
+  styles/main.css
+```
+
+## Zasady pracy
+- **Geometria tylko z `src/data/apartment.ts`.** Żadnych liczb wymiarowych w modułach geometrii, sterowania czy minimapy. Dane w cm, dokładnie jak w wymiary.md (te same nazwy i współrzędne), konwersja na metry w jednym miejscu (`core/units.ts`).
+- Zmiana wymiaru: najpierw wymiary.md (za zgodą właściciela), potem apartment.ts, potem `npm run check:data`.
+- Układ współrzędnych jak w wymiary.md: X w prawo, Y w głąb (→ w Three.js oś Z), wysokość → oś Y Three.js. Początek w narożniku ściany wejściowej i lewej.
+- Ściany sąsiednie (21 cm) i zewnętrzna (39,5 cm) modelujemy z prawdziwą grubością, żeby ościeża i wnęki okien wyglądały wiarygodnie.
+- Tryby różnią się tylko danymi w `data/modes/*`; kod budujący scenę jest wspólny. Przełączenie trybu nie przeładowuje strony, zasoby trybu ładujemy przy pierwszym użyciu.
+- **Zasoby tylko CC0**: Poly Haven (tekstury, HDRI, modele), ambientCG (tekstury). Każdy plik wpisany do `public/assets/CREDITS.md` (URL, autor, licencja). Nie dodawać zasobów bez licencji ani z „free for personal use”.
+- Gdy nie ma pasującego modelu CC0, mebel modelujemy proceduralnie w `furniture/builders`: zaokrąglone krawędzie (RoundedBoxGeometry/fazki), poprawne proporcje z katalogów (sofa 85 cm wys., siedzisko 45, blat 90, stół 75 itd.), osobne materiały dla tkaniny, drewna, metalu.
+- **Budżet wydajności (telefon średniej klasy):** ≥ 30 fps, cel 60 fps na komputerze; ≤ 150 draw calls; ≤ 300 tys. trójkątów; tekstury 1k na telefonie (2k na komputerze), KTX2; pierwszy tryb do pobrania ≤ 20 MB; DPR na telefonie ≤ 1,5; jeden cień kierunkowy (mapa 1024 mobile / 2048 desktop), światła sztuczne bez cieni lub z najwyżej 1–2 cieniami na desktopie. Statyczne bryły łączymy (merge) per materiał.
+- Kod i identyfikatory po angielsku, interfejs i dokumentacja po polsku. Komentarze oszczędnie, tam gdzie logika nie jest oczywista.
+- Każdy etap z PLAN.md kończy się działającą wersją: `npm run build` bez błędów, sprawdzenie w podglądzie (desktop i widok mobilny), commit, publikacja na GitHub Pages.
+- Commity małe, opisowe, po polsku lub angielsku konsekwentnie w obrębie repo (domyślnie: polski).
+
+## Polecenia
+```bash
+npm run dev          # serwer deweloperski (z --host, żeby sprawdzić na telefonie w tej samej sieci)
+npm run build        # build do dist/
+npm run preview      # podgląd builda
+npm run check:data   # walidacja apartment.ts
+npm run assets       # pobranie i konwersja zasobów CC0
+```
+
+## Style wykończenia (z analizy zdjęć)
+
+### Styl 1 – ciemny, ciepły, „moody walnut”
+- **Materiały:** ciemne lamele orzech/wenge na ścianie TV i za lustrem w łazience; podłoga z ciemnego, dymionego dębu (deska, matowa); czarne matowe akcenty (metal, stoliki); len w zasłonach.
+- **Kolory:** ściany taupe i ciemny brąz z szarością (sypialnia jaśniejsze taupe), sufit ciepła biel; tkaniny greige; akcenty bordo i butelkowa zieleń (poduszki, koc).
+- **Meble:**
+  - salon: duży narożnik velvet taupe z szezlongiem, niski prostokątny czarny stolik, niska szafka RTV z frontami lamelowymi, wysoka zabudowa z lameli i otwartymi półkami, okrągły stolik boczny;
+  - jadalnia: owalny stół z ciemnego drewna, krzesła drewniane z plecionką;
+  - sypialnia: ciemnobrązowe łóżko z wysokim wezgłowiem, komoda w tym samym drewnie, półka na ramki, chodnik z juty, czarne krzesło.
+- **Łazienka:** ciemnoszare płyty wielkoformatowe w stylu betonu na ścianach i podłodze; lamele drewniane z okrągłym, podświetlanym lustrem; wisząca szafka orzechowa z ciemnym blatem i czarną umywalką nablatową; czarne WC podwieszane; walk-in z czarnym profilem; nisza z LED; czarna armatura i grzejnik drabinkowy.
+- **Światło:** nastrojowe, 2700 K – lampa wisząca z rattanu (sypialnia), białe kule opalowe nad stołem, liniowe LED w niszach i za lamelami, oczka w suficie, lampa podłogowa z kulami; w dzień miękkie światło przez lniane firany.
+
+### Styl 2 – jasny, ciepły minimalizm z kontrastową kuchnią
+- **Materiały:** podłoga z jasnego dębu (deska; w salonie możliwa jodełka); jasne lamele dębowe przy TV z podświetleniem LED; firany lniane i zasłony taupe; w kuchni fronty czarne matowe i orzechowe.
+- **Kolory:** ściany kremowe i greige, sufit biały; tkaniny beżowe i ecru; akcenty: czarne okrągłe stoliki, karmelowa pufa, ciemne poduszki.
+- **Meble:**
+  - salon: beżowa sofa narożna z szezlongiem, fotel bouclé, okrągły stolik kawowy czarny lub z ryflowanego drewna, wisząca szafka RTV, gruby jasny dywan;
+  - kuchnia: dolne fronty orzechowe, górne czarne matowe, część z ryflowanym szkłem i podświetleniem; ciemny blat i ściana nad blatem w stylu kamienia; czarne relingi, lampy punktowe na szynie; wysoka szafa w orzechu z lustrem;
+  - sypialnia: tapicerowane łóżko taupe, ciemna boazeria drewniana na ścianie, szafa bez uchwytów w jasnym greige, biurko we wnęce z podświetlanymi półkami, ciemne szafki nocne.
+- **Łazienka:** jasne płyty greige lub imitujące marmur (ściana prysznica), drobna pionowa mozaika na ścianie umywalki, wisząca szafka orzechowa z kamiennym blatem, biała ceramika, czarna matowa armatura, szklany walk-in z niszą LED, lustro z zaokrąglonymi narożnikami.
+- **Światło:** jaśniejsze, rozproszone, 3000 K – żyrandol z mlecznymi kulami / sputnik, taśmy LED w obniżeniach sufitu, lampa stojąca z abażurem, kinkiet w łazience; w dzień dużo światła przez firany.
+
+### Stan surowy
+Wylewka cementowa (szara, lekko plamista), ściany i sufit z szarego tynku gipsowego/cementowo-wapiennego (bez malowania), puszki i gniazdka (białe, orientacyjne), wypusty z kablami na suficie, grzejniki płytowe białe, piony w szachtach otynkowane, drzwi wejściowe EI30 i stolarka balkonowa (antracyt), brak drzwi wewnętrznych (tylko ościeża), brak mebli i osprzętu łazienki/kuchni (tylko podejścia instalacyjne).
