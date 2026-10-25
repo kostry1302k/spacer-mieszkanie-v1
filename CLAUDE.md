@@ -53,6 +53,7 @@ src/
     state.ts               – stan: tryb, pora dnia, nowa ścianka, pozycja gracza; prosty event bus
     quality.ts             – profil jakości (mobile/desktop): rozdzielczość, cienie, tekstury
     assets.ts              – ładowanie i cache tekstur/modeli, lazy-load per tryb
+    debug.ts               – tryb `?debug` w adresie: licznik FPS i pomoce deweloperskie
   data/
     apartment.ts           – JEDYNY plik geometrii: ściany, otwory, drzwi, okna, szachty, pokoje, wysokości, balkon, grzejniki, elektryka
     types.ts               – typy danych (Wall, Opening, Door, Room, Fixture…)

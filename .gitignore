@@ -6,3 +6,6 @@ dist/
 # materiały źródłowe zostają lokalnie (repo publiczne), w repo tylko wymiary
 materialy/*
 !materialy/wymiary.md
+
+# lokalna konfiguracja podglądu w aplikacji Claude
+.claude/

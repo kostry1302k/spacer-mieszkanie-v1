@@ -1,0 +1,20 @@
+{
+  "name": "spacer-mieszkanie",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "description": "Wirtualny spacer po mieszkaniu M12, Skypoint 57",
+  "scripts": {
+    "dev": "vite --host",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview --host"
+  },
+  "dependencies": {
+    "three": "0.186.1"
+  },
+  "devDependencies": {
+    "@types/three": "0.186.0",
+    "typescript": "7.0.2",
+    "vite": "8.3.5"
+  }
+}
