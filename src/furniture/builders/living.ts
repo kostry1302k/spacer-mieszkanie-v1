@@ -65,9 +65,18 @@ export const tvCabinet: Builder = (p) => {
   const lift = num(p, 'lift', 18);
   const body = str(p, 'mat', 'walnut');
   const parts: Part[] = [span(body, -w / 2, w / 2, lift, lift + h, -d / 2, d / 2 - 2, 0.5)];
-  // Fronty z pionowymi lamelami.
-  const slat = 3;
-  for (let x = -w / 2 + 2; x < w / 2 - 2; x += slat + 1.2) parts.push(span(body, x, x + slat, lift + 2, lift + h - 2, d / 2 - 2, d / 2, 0));
+  if (p.fronts === 'plain') {
+    // Gładkie fronty bez uchwytów (push), z wąskimi fugami.
+    const n = num(p, 'doors', 3);
+    for (let i = 0; i < n; i++) {
+      const x0 = -w / 2 + (i * w) / n;
+      parts.push(span(body, x0 + 0.2, x0 + w / n - 0.2, lift + 0.2, lift + h - 0.2, d / 2 - 2, d / 2, 0.3));
+    }
+  } else {
+    // Fronty z pionowymi lamelami.
+    const slat = 3;
+    for (let x = -w / 2 + 2; x < w / 2 - 2; x += slat + 1.2) parts.push(span(body, x, x + slat, lift + 2, lift + h - 2, d / 2 - 2, d / 2, 0));
+  }
   parts.push(span('blackMatte', -w / 2 + 3, w / 2 - 3, lift + h - 0.2, lift + h + 0.3, -d / 2 + 3, d / 2 - 3)); // fuga blatu
   if (p.ledUnder) parts.push(span('led', -w / 2 + 4, w / 2 - 4, lift - 0.6, lift, -d / 2 + 4, -d / 2 + 6)); // LED pod wiszącą szafką
   return { parts, size: { w, d, h: lift + h }, collide: true };
@@ -80,7 +89,7 @@ export const lamellaPanel: Builder = (p) => {
   const slat = num(p, 'slat', 4);
   const gap = num(p, 'gap', 2);
   const mat = str(p, 'mat', 'walnut');
-  const parts: Part[] = [span('blackMatte', -w / 2, w / 2, 0, h, -2, -1)]; // filc pod lamelami
+  const parts: Part[] = [span(str(p, 'felt', 'blackMatte'), -w / 2, w / 2, 0, h, -2, -1)]; // filc pod lamelami
   for (let x = -w / 2; x + slat <= w / 2 + 0.01; x += slat + gap) parts.push(span(mat, x, x + slat, 0, h, -1, 1.2));
   if (p.led) parts.push(span('led', -w / 2, w / 2, h + 0.2, h + 1, -1, 1)); // taśma LED nad panelem
   // Bez osobnego źródła światła – sama świecąca taśma (oszczędność na telefonach).
@@ -247,10 +256,48 @@ export const wardrobe: Builder = (p) => {
   const fw = w / doors;
   for (let i = 0; i < doors; i++) {
     const x0 = -w / 2 + i * fw;
+    if (p.fronts === 'lamella') {
+      // Front z pionowych lamel (push) na ciemnym podkładzie.
+      parts.push(span('blackMatte', x0 + 0.2, x0 + fw - 0.2, plinth + 0.2, h - 0.5, d / 2 - 2, d / 2 - 1.2));
+      for (let x = x0 + 0.8; x + 3.6 <= x0 + fw - 0.6; x += 5.4) parts.push(span(front, x, x + 3.6, plinth + 0.2, h - 0.5, d / 2 - 1.2, d / 2));
+      continue;
+    }
     parts.push(span(front, x0 + 0.2, x0 + fw - 0.2, plinth + 0.2, h - 0.5, d / 2 - 2, d / 2, 0.3));
-    // Pionowy frez zamiast uchwytu przy krawędzi skrzydła.
     const gx = i % 2 ? x0 + 3 : x0 + fw - 3;
-    parts.push(span('blackMatte', gx - 0.6, gx + 0.6, plinth + 80, plinth + 130, d / 2 - 0.1, d / 2 + 0.1));
+    if (p.handles === 'bar') {
+      // Smukły czarny uchwyt pionowy przy krawędzi skrzydła.
+      parts.push(span('blackMetal', gx - 0.7, gx + 0.7, plinth + 85, plinth + 145, d / 2 + 0.4, d / 2 + 2.2, 0.3));
+      parts.push(span('blackMetal', gx - 0.5, gx + 0.5, plinth + 88, plinth + 92, d / 2, d / 2 + 0.4));
+      parts.push(span('blackMetal', gx - 0.5, gx + 0.5, plinth + 138, plinth + 142, d / 2, d / 2 + 0.4));
+    } else {
+      // Pionowy frez zamiast uchwytu przy krawędzi skrzydła.
+      parts.push(span('blackMatte', gx - 0.6, gx + 0.6, plinth + 80, plinth + 130, d / 2 - 0.1, d / 2 + 0.1));
+    }
   }
   return { parts, size: { w, d, h }, collide: true };
+};
+
+/** Fornirowany panel-wezgłowie na ścianie z półką-listwą u góry i LED pod półką. */
+export const headboardPanel: Builder = (p) => {
+  const w = num(p, 'w', 202);
+  const h = num(p, 'h', 112);
+  const shelf = num(p, 'shelf', 12);
+  const mat = str(p, 'mat', 'walnut');
+  return {
+    parts: [
+      span(mat, -w / 2, w / 2, 0, h - 3, -1, 1), // panel
+      span(mat, -w / 2, w / 2, h - 3, h, -1, shelf - 1, 0.4), // półka-listwa
+      span('led', -w / 2 + 2, w / 2 - 2, h - 3.6, h - 3, shelf - 4, shelf - 2), // LED pod półką
+    ],
+    size: { w, d: shelf, h },
+    collide: false,
+  };
+};
+
+/** Prosta bryła z jednego materiału (blat, zabudowa stelaża, donica…). */
+export const block: Builder = (p) => {
+  const w = num(p, 'w', 50);
+  const d = num(p, 'd', 50);
+  const h = num(p, 'h', 50);
+  return { parts: [span(str(p, 'mat', 'walnut'), -w / 2, w / 2, 0, h, -d / 2, d / 2, num(p, 'r', 0))], size: { w, d, h }, collide: p.collide === true };
 };

@@ -46,7 +46,8 @@ export const downlight: Builder = (p) => {
     parts: [cylinder(str(p, 'mat', 'blackMatte'), 5, 5, 0.6, 0, ceiling - 0.6, 0, 24), cylinder(p.alwaysOn ? 'ledAlways' : 'led', 3.5, 3.5, 0.2, 0, ceiling - 0.8, 0, 24)],
     size: { w: 10, d: 10, h: ceiling },
     collide: false,
-    lights: [{ x: 0, y: ceiling - 15, z: 0, intensity: num(p, 'cd', 25), color: color(p), alwaysOn: Boolean(p.alwaysOn) }],
+    // `noLight` – sama świecąca oprawa bez źródła światła (oszczędność na telefonach).
+    lights: p.noLight ? undefined : [{ x: 0, y: ceiling - 15, z: 0, intensity: num(p, 'cd', 25), color: color(p), alwaysOn: Boolean(p.alwaysOn) }],
   };
 };
 
@@ -117,3 +118,39 @@ export const floorLampShade: Builder = (p) => {
     lights: [{ x: 0, y: h - 22, z: 0, intensity: num(p, 'cd', 25), color: color(p) }],
   };
 };
+
+/** Grono trzech kul z mlecznego szkła na przewodach różnej długości. `bottom` – wysokość dołu najniższej kuli. */
+export const pendantCluster: Builder = (p) => {
+  const ceiling = num(p, 'ceiling', 270);
+  const bottom = num(p, 'bottom', 137);
+  const globes: [number, number, number, number][] = [[0, 0, 13, 0], [-12, 6, 10, 22], [11, -7, 9, 30]]; // x, z, promień, wyżej o
+  const parts: Part[] = [cylinder('blackMetal', 7, 7, 2, 0, ceiling - 2, 0)];
+  for (const [x, z, r, up] of globes) {
+    const cy = bottom + up + r;
+    parts.push(cylinder('cable', 0.25, 0.25, ceiling - cy - r, x, cy + r, z), cylinder('blackMetal', 2.5, 2.5, 3, x, cy + r - 1, z), sphere('opal', r, x, cy, z, 28));
+  }
+  return {
+    parts,
+    size: { w: 50, d: 50, h: ceiling },
+    collide: false,
+    lights: [{ x: 0, y: bottom + 20, z: 0, intensity: num(p, 'cd', 40), color: color(p) }],
+  };
+};
+
+/** Czarny reflektor natynkowy z trzema kierunkowymi punktami na belce. */
+export const trackSpot: Builder = (p) => {
+  const ceiling = num(p, 'ceiling', 270);
+  const len = num(p, 'len', 60);
+  const parts: Part[] = [span('blackMatte', -len / 2, len / 2, ceiling - 3, ceiling, -2, 2, 0.5)];
+  for (const x of [-len / 2 + 8, 0, len / 2 - 8]) {
+    parts.push(cylinder('blackMatte', 0.8, 0.8, 5, x, ceiling - 8, 0), cylinder('blackMatte', 3.2, 3.2, 10, x, ceiling - 18, 0), cylinder('led', 2.6, 2.6, 0.3, x, ceiling - 18.2, 0));
+  }
+  return { parts, size: { w: len, d: 6, h: ceiling }, collide: false, lights: [{ x: 0, y: ceiling - 25, z: 0, intensity: num(p, 'cd', 30), color: color(p) }] };
+};
+
+/** Lampka nocna: czarna podstawa i klosz (świeci tylko kloszem). */
+export const tableLamp: Builder = (p) => ({
+  parts: [cylinder('blackMetal', 6, 7, 2, 0, 0, 0, 24), cylinder('blackMetal', 0.8, 0.8, 26, 0, 2, 0), cylinder(str(p, 'shade', 'shadeLinen'), 7, 10, 14, 0, 26, 0, 28)],
+  size: { w: 20, d: 20, h: 40 },
+  collide: false,
+});

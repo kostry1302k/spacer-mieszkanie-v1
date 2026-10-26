@@ -41,7 +41,7 @@ export const FURNITURE_BASE = {
   opal: { color: 0xf7f3ec, roughness: 0.3, emissive: 0xffd9b0, glow: 2.5 },
   led: { color: 0xffe6c8, roughness: 0.4, emissive: 0xffc98a, glow: 4 },
   ledAlways: { color: 0xffe6c8, roughness: 0.4, emissive: 0xffc98a, glow: 4, alwaysOn: true },
-  mirror: { color: 0x7d8387, roughness: 0.06, metalness: 1 }, // ciemniej – odbija niebo z HDRI, nie pokój
+  mirror: { color: 0x5c6164, roughness: 0.1, metalness: 1 }, // ciemniej i matowiej – odbija niebo z HDRI, nie pokój
   glassClear: { color: 0xd8e4ea, roughness: 0.05, opacity: 0.18 },
   ceramicBlack: { color: 0x1b1b1b, roughness: 0.2 },
   ceramicWhite: { color: 0xf5f5f3, roughness: 0.18 },

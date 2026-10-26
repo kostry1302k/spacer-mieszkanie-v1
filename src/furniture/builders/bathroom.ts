@@ -57,7 +57,7 @@ export const wcWallHung: Builder = (p) => {
     parts: [
       box(bowl, 36, 30, 46, 0, 33, -d / 2 + 25, 12), // miska
       box(bowl, 37, 3, 44, 0, 49, -d / 2 + 25, 1.4), // deska
-      span(str(p, 'plate', 'blackMatte'), -12, 12, 98, 113, -d / 2, -d / 2 + 1), // przycisk
+      span(str(p, 'plate', 'blackMatte'), -12, 12, num(p, 'plateZ', 98), num(p, 'plateZ', 98) + 15, -d / 2, -d / 2 + 1), // przycisk
     ],
     size: { w: 37, d, h: 50 },
     collide: true,
@@ -119,3 +119,27 @@ export const towelRadiator: Builder = (p) => {
   for (let y = 6; y < h - 2; y += 9) parts.push(rod(mat, 1, w, 0, y, 0));
   return { parts, size: { w: w + 3, d: 8, h }, collide: false };
 };
+
+/** Szafka z lustrem nad umywalką, z podświetleniem od spodu (świeci zawsze – łazienka bez okna). */
+export const mirrorCabinet: Builder = (p) => {
+  const w = num(p, 'w', 116);
+  const h = num(p, 'h', 75);
+  const d = num(p, 'd', 15);
+  return {
+    parts: [
+      span(str(p, 'mat', 'walnut'), -w / 2, w / 2, 0, h, -d / 2, d / 2 - 0.6, 0.3),
+      span('mirror', -w / 2 + 0.3, -0.2, 0.3, h - 0.3, d / 2 - 0.6, d / 2),
+      span('mirror', 0.2, w / 2 - 0.3, 0.3, h - 0.3, d / 2 - 0.6, d / 2),
+      span('ledAlways', -w / 2 + 3, w / 2 - 3, -0.4, 0, -d / 2 + 4, d / 2 - 4),
+    ],
+    size: { w, d, h },
+    collide: false,
+  };
+};
+
+/** Bateria ścienna z wylewką (czarny mat). */
+export const wallTap: Builder = (p) => ({
+  parts: [cylinder(str(p, 'mat', 'blackMetal'), 3, 3, 1, 0, 0, 0.5), rod(str(p, 'mat', 'blackMetal'), 1, 18, 0, 0, 9, 'z'), cylinder(str(p, 'mat', 'blackMetal'), 0.8, 0.8, 6, 6, 1, 0.5)],
+  size: { w: 8, d: 18, h: 6 },
+  collide: false,
+});
