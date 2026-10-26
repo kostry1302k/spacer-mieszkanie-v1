@@ -131,15 +131,17 @@ npm run assets       # pobranie i konwersja zasobów CC0 (tylko macOS – używa
 
 ## Style wykończenia (z analizy zdjęć)
 
-### Styl 1 – ciemny, ciepły, „moody walnut”
-- **Materiały:** ciemne lamele orzech/wenge na ścianie TV i za lustrem w łazience; podłoga z ciemnego, dymionego dębu (deska, matowa); czarne matowe akcenty (metal, stoliki); len w zasłonach.
-- **Kolory:** ściany taupe i ciemny brąz z szarością (sypialnia jaśniejsze taupe), sufit ciepła biel; tkaniny greige; akcenty bordo i butelkowa zieleń (poduszki, koc).
-- **Meble:**
-  - salon: duży narożnik velvet taupe z szezlongiem, niski prostokątny czarny stolik, niska szafka RTV z frontami lamelowymi, wysoka zabudowa z lameli i otwartymi półkami, okrągły stolik boczny;
-  - jadalnia: owalny stół z ciemnego drewna, krzesła drewniane z plecionką;
-  - sypialnia: ciemnobrązowe łóżko z wysokim wezgłowiem, komoda w tym samym drewnie, półka na ramki, chodnik z juty, czarne krzesło.
-- **Łazienka:** ciemnoszare płyty wielkoformatowe w stylu betonu na ścianach i podłodze; lamele drewniane z okrągłym, podświetlanym lustrem; wisząca szafka orzechowa z ciemnym blatem i czarną umywalką nablatową; czarne WC podwieszane; walk-in z czarnym profilem; nisza z LED; czarna armatura i grzejnik drabinkowy.
-- **Światło:** nastrojowe, 2700 K – lampa wisząca z rattanu (sypialnia), białe kule opalowe nad stołem, liniowe LED w niszach i za lamelami, oczka w suficie, lampa podłogowa z kulami; w dzień miękkie światło przez lniane firany.
+### Styl 1 – „Mocca & Orzech”, ciepły ciemny minimalizm
+**Źródło prawdy dla stylu 1: `materialy/style/styl-1/M12 Skypoint 57 — Styl 1.pdf`** (9 plansz: paleta, rzut z aranżacją, widoki ścian z wymiarami, światło). Dane w `src/data/modes/styl1.ts` odwzorowują ten dokument; zmiany stylu 1 zaczynamy od niego.
+- **Paleta:** Len #CFC3B3 (ściany), Glina #8D7D6D (ściana za łóżkiem i fronty szafy w sypialni), Mocca #3B2F28 (filc pod lamelami, zasłony, akcenty), dąb wędzony #5A4130 (lamele, dolne fronty i słupek kuchni, szafa w holu, panel-wezgłowie, szafka pod umywalką), dąb w jodełkę #8E6A4B (jedna podłoga bez progów), spiek greige #A89B8B 60 × 120 (łazienka do sufitu, blaty i plecy kuchni), len i bouclé/welur greige, czerń mat, opal, rattan.
+- **Salon:** lamele na całej nowej ściance (357,5 × 270) z profilem LED w suficie, wisząca szafka RTV 200 × 35 (25 cm nad podłogą, LED pod spodem), TV 55″, sofa 160 × 90 welur greige, stolik ø 60 mocca, dywan 160 × 230, lampa z lnianym abażurem, reflektor 3-punktowy.
+- **Aneks:** L wokół szachtu, dół dąb wędzony, szafki górne w kolorze ściany do sufitu, zmywarka 45, stół 75 × 75 przy ścianie, 3 krzesła z plecionką, grono opalowych kul ~62 cm nad stołem.
+- **Sypialnia:** łóżko 140 × 200 bouclé przy oknie, panel-wezgłowie 202 × 112 z półką i LED, szafa 120 × 60 do sufitu w kolorze Glina z czarnymi uchwytami, szafka nocna 40 × 40 z lampką, kinkiety, rattanowa lampa, dywan 130 × 200.
+- **Łazienka:** spiek greige pionowo do sufitu (tekstura płytek rysowana w programie – `TilesSpec`), gres drewnopodobny na dwóch ścianach prysznica z niszą LED, wspólny blat 120 × 52 nad pralką i szufladą, szafka z lustrem 116 × 75 z podświetleniem, białe WC na zabudowie stelaża (półka), czarny grzejnik drabinkowy.
+- **Hol:** szafa 80 × 50 do sufitu z frontami z lamel, lustro 60 × 180 na ściance od kuchni, 3 oprawy w suficie.
+- **Balkon:** płyty tarasowe drewnopodobne, stolik z dwoma krzesłami, donica, kinkiet na filarze.
+- **Światło:** wszystko 2700 K, wiele małych źródeł (LED w lamelach, pod szafkami, w niszach, lampy jako akcenty).
+- **Odstępstwa od PDF w spacerze:** stolik kawowy przesunięty 18 cm w stronę sofy, a zestaw na balkonie 10 cm w stronę ściany – inaczej przejścia miałyby < 44 cm. Opcjonalna ławka w holu – pominięta.
 
 ### Styl 2 – jasny, ciepły minimalizm z kontrastową kuchnią
 - **Materiały:** podłoga z jasnego dębu (deska; w salonie możliwa jodełka); jasne lamele dębowe przy TV z podświetleniem LED; firany lniane i zasłony taupe; w kuchni fronty czarne matowe i orzechowe.
