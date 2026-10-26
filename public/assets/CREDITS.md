@@ -20,6 +20,5 @@ Tekstury przeskalowane do 1k/2k i ponownie skompresowane (JPEG 80%); modele 3D z
 | tekstura | [Fabric030](https://ambientcg.com/view?id=Fabric030) | ambientCG | ambientCG (Lennart Demes) | CC0 1.0 | tapicerka – tkanina (sofa, łóżko) |
 | tekstura | [Carpet016](https://ambientcg.com/view?id=Carpet016) | ambientCG | ambientCG (Lennart Demes) | CC0 1.0 | dywany |
 | tekstura | [Wicker008A](https://ambientcg.com/view?id=Wicker008A) | ambientCG | ambientCG (Lennart Demes) | CC0 1.0 | rattan – lampa wisząca (styl 1) |
-| model 3D | [potted_plant_02](https://polyhaven.com/a/potted_plant_02) | Poly Haven | Rico Cilliers | CC0 1.0 | roślina w doniczce (salon) |
 | model 3D | [potted_plant_04](https://polyhaven.com/a/potted_plant_04) | Poly Haven | James Ray Cock | CC0 1.0 | mała roślina (łazienka, półki) |
 | HDRI | [noon_grass](https://polyhaven.com/a/noon_grass) | Poly Haven | Greg Zaal | CC0 1.0 | niebo i otoczenie za oknami, światło otoczenia |

@@ -17,7 +17,8 @@ Plan prac w etapach: [PLAN.md](PLAN.md).
 - Balkon na **południe** (+Y = południe). Słońce realne dla Warszawy (52,2° N), domyślnie dzień w październiku.
 - Tryb surowy = stan deweloperski + przełącznik „pokaż nową ściankę”. Wykończenia = zawsze wariant po przebudowie (sypialnia 9,19 m²).
 - Łazienka: walk-in 90 × 80 z czarnym profilem, WC, umywalka, pralka. Bez wanny i suszarki.
-- Kuchnia w układzie deweloperskim (L wokół szachtu). Bez szafy w holu.
+- Kuchnia w układzie deweloperskim (L wokół szachtu).
+- Wyposażenie wykończeń (26.10.2026): sypialnia – łóżko 140 × 200 przy oknie i szafa 120 × 60 do sufitu obok; salon – sofa 160, stół kwadratowy 75 × 75 przy ścianie prawej z 3 krzesłami; hol – szafa 80 × 50 do sufitu przy ścianie wejściowej (szczegóły w wymiary.md).
 - Drzwi balkonowe: jedno skrzydło rozwierne do środka przy zewnętrznym ościeżu, część przy filarze stała.
 - Grzejniki: po jednym na filarku 69,5 obok każdych drzwi balkonowych; brak na ścianie lewej.
 - Elektryka: typowy układ (gniazdka 30 cm, włączniki 110 cm, gniazdka nad blatem), oznaczony w danych jako `orientacyjny`.

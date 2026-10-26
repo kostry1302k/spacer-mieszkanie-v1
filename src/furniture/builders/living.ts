@@ -98,11 +98,18 @@ export const tv: Builder = (p) => {
   };
 };
 
-/** Stół okrągły na jednej nodze. */
+/** Stół: okrągły na jednej nodze albo kwadratowy (`shape: 'square'`, bok `w`) na czterech nogach. */
 export const diningTable: Builder = (p) => {
   const r = num(p, 'r', 45);
   const h = num(p, 'h', 75);
   const top = str(p, 'mat', 'walnut');
+  if (p.shape === 'square') {
+    const w = num(p, 'w', 75);
+    const legs = str(p, 'legs', top);
+    const parts: Part[] = [span(top, -w / 2, w / 2, h - 3, h, -w / 2, w / 2, 0.8)];
+    for (const x of [-w / 2 + 4, w / 2 - 4]) for (const z of [-w / 2 + 4, w / 2 - 4]) parts.push(span(legs, x - 2, x + 2, 0, h - 3, z - 2, z + 2, 0.4));
+    return { parts, size: { w, d: w, h }, collide: true };
+  }
   return {
     parts: [cylinder(top, r, r, 3, 0, h - 3, 0, 56), cylinder('blackMatte', 5, 5, h - 3, 0, 0, 0), cylinder('blackMatte', 24, 26, 2, 0, 0, 0, 40)],
     size: { w: 2 * r, d: 2 * r, h },
@@ -220,4 +227,30 @@ export const mirrorRect: Builder = (p) => {
     size: { w, d: 2, h },
     collide: false,
   };
+};
+
+/**
+ * Szafa na ubrania (do sufitu albo zadanej wysokości): fronty bezuchwytowe z frezem, cokół.
+ * Front = strona drzwi.
+ */
+export const wardrobe: Builder = (p) => {
+  const w = num(p, 'w', 120);
+  const d = num(p, 'd', 60);
+  const h = num(p, 'h', 270);
+  const front = str(p, 'front', 'walnut');
+  const doors = num(p, 'doors', Math.max(1, Math.round(w / 50)));
+  const plinth = 8;
+  const parts: Part[] = [
+    span('blackMatte', -w / 2 + 1, w / 2 - 1, 0, plinth, -d / 2, d / 2 - 4), // cokół
+    span(str(p, 'carcass', front), -w / 2, w / 2, plinth, h, -d / 2, d / 2 - 2), // korpus
+  ];
+  const fw = w / doors;
+  for (let i = 0; i < doors; i++) {
+    const x0 = -w / 2 + i * fw;
+    parts.push(span(front, x0 + 0.2, x0 + fw - 0.2, plinth + 0.2, h - 0.5, d / 2 - 2, d / 2, 0.3));
+    // Pionowy frez zamiast uchwytu przy krawędzi skrzydła.
+    const gx = i % 2 ? x0 + 3 : x0 + fw - 3;
+    parts.push(span('blackMatte', gx - 0.6, gx + 0.6, plinth + 80, plinth + 130, d / 2 - 0.1, d / 2 + 0.1));
+  }
+  return { parts, size: { w, d, h }, collide: true };
 };

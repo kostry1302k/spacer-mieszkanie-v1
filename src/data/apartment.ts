@@ -116,8 +116,9 @@ export const apartment: Apartment = {
   // Elektryka orientacyjna: gniazdka 30, włączniki 110, nad blatem 110.
   fixtures: [
     // Hol
-    { id: 'hallSwitch', type: 'switch', x: 225, y: 0, z: 110, facing: '+y', approximate: true },
-    { id: 'intercom', type: 'intercom', x: 200, y: 0, z: 150, facing: '+y', approximate: true },
+    // Włącznik i domofon na ściance od kuchni, za zasięgiem otwartych drzwi wejściowych (przy ścianie wejściowej stoi szafa).
+    { id: 'hallSwitch', type: 'switch', x: 350, y: 105, z: 110, facing: '-x', approximate: true },
+    { id: 'intercom', type: 'intercom', x: 350, y: 165, z: 150, facing: '-x', approximate: true },
     { id: 'panel', type: 'panel', x: 350, y: 135, z: 160, facing: '-x', approximate: true },
     { id: 'bathSwitch', type: 'switch', x: 160, y: 155, z: 110, facing: '+x', approximate: true },
     { id: 'hallCeiling', type: 'ceilingOutlet', x: 255, y: 92.5, z: H, facing: 'down', approximate: true },

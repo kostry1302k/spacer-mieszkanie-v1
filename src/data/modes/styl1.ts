@@ -34,19 +34,20 @@ export const styl1Furniture: FurnitureItem[] = [
   { id: 'tvLamellas', type: 'lamellaPanel', x: 276.5, y: 420, facing: '+x', params: { w: 200, h: 260, led: true } },
   { id: 'tv', type: 'tv', x: 280.5, y: 420, z: 112, facing: '+x', params: { w: 123, h: 71 } },
   { id: 'tvCabinet', type: 'tvCabinet', x: 297.5, y: 420, facing: '+x', params: { w: 180, d: 38, h: 42, lift: 16 } },
-  { id: 'sofa', type: 'sofa', x: 491.5, y: 393.5, facing: '-x', params: { w: 185, d: 95, accentA: 'cushionBordo', accentB: 'cushionGreen' } },
-  { id: 'coffeeTable', type: 'coffeeTable', x: 397, y: 410, facing: '-x', params: { w: 90, d: 50, h: 38 } },
-  { id: 'livingRug', type: 'rug', x: 412, y: 410, facing: '-x', params: { w: 200, d: 150 } },
-  { id: 'floorLamp', type: 'floorLampGlobes', x: 515, y: 520, facing: '-x', params: { cd: 22 } },
-  { id: 'sofaArt', type: 'artFrame', x: 537.5, y: 393.5, z: 128, facing: '-x', params: { w: 90, h: 60 } },
-  { id: 'livingPlant', type: 'model', x: 512, y: 242, facing: '-x', params: { file: 'potted_plant_02.glb', height: 95, w: 50, d: 50 } },
+  // Sofa dosunięta w stronę okna – kończy się przed polem skrzydła drzwi balkonowych (Y ≈ 506).
+  { id: 'sofa', type: 'sofa', x: 491.5, y: 425, facing: '-x', params: { w: 160, d: 95, accentA: 'cushionBordo', accentB: 'cushionGreen' } },
+  { id: 'coffeeTable', type: 'coffeeTable', x: 397, y: 425, facing: '-x', params: { w: 90, d: 50, h: 38 } },
+  { id: 'livingRug', type: 'rug', x: 412, y: 425, facing: '-x', params: { w: 200, d: 150 } },
+  { id: 'floorLamp', type: 'floorLampGlobes', x: 300, y: 535, facing: '+x', params: { cd: 22 } },
+  { id: 'sofaArt', type: 'artFrame', x: 537.5, y: 425, z: 128, facing: '-x', params: { w: 90, h: 60 } },
   { id: 'livingDownlight', type: 'downlight', x: 350, y: 480, facing: '+y', params: { cd: 22 } },
 
-  // ── Jadalnia: okrągły stół dla 2 osób między aneksem a sofą (od północy wolne przejście do kuchni) ──
-  { id: 'diningTable', type: 'diningTable', x: 400, y: 272, facing: '+y', params: { r: 38 } },
-  { id: 'chairE', type: 'diningChair', x: 454, y: 272, facing: '-x' },
-  { id: 'chairS', type: 'diningChair', x: 400, y: 326, facing: '-y' },
-  { id: 'diningPendant', type: 'pendantGlobe', x: 400, y: 272, facing: '+y', params: { r: 15, drop: 95, ceiling: CEIL, cd: 35 } },
+  // ── Jadalnia: kwadratowy stół 75×75 dosunięty do ściany prawej, 3 krzesła (od kuchni, od salonu, od sofy) ──
+  { id: 'diningTable', type: 'diningTable', x: 501.5, y: 265.5, facing: '+y', params: { shape: 'square', w: 75, legs: 'blackMatte' } },
+  { id: 'chairN', type: 'diningChair', x: 501.5, y: 210, facing: '+y' },
+  { id: 'chairW', type: 'diningChair', x: 446, y: 265.5, facing: '+x' },
+  { id: 'chairS', type: 'diningChair', x: 501.5, y: 321, facing: '-y' },
+  { id: 'diningPendant', type: 'pendantGlobe', x: 501.5, y: 265.5, facing: '+y', params: { r: 15, drop: 95, ceiling: CEIL, cd: 35 } },
 
   // ── Kuchnia: L wokół szachtu – lodówka i płyta przy ścianie wejściowej, zlew przy prawej ──
   { id: 'fridge', type: 'fridgeColumn', x: 388, y: 30, facing: '+y' },
@@ -62,20 +63,22 @@ export const styl1Furniture: FurnitureItem[] = [
   { id: 'kitchenDownlight', type: 'downlight', x: 440, y: 105, facing: '+y', params: { cd: 25 } },
 
   // ── Hol ──
-  { id: 'hallConsole', type: 'consoleTable', x: 335, y: 145, facing: '-x', params: { w: 80, d: 30 } },
-  { id: 'hallMirror', type: 'mirrorRect', x: 349, y: 145, z: 95, facing: '-x', params: { w: 60, h: 100 } },
+  // Szafa do sufitu przy ścianie wejściowej, na lewo od drzwi (X 160–240). Głębokość 50 – za nią mieści się
+  // otwarte skrzydło drzwi łazienki (Y ≈ 56); przy ściance od kuchni zablokowałaby przejście do salonu.
+  { id: 'hallWardrobe', type: 'wardrobe', x: 200, y: 25, facing: '+y', params: { w: 80, d: 50, h: CEIL, doors: 2 } },
   { id: 'hallDownlight', type: 'downlight', x: 255, y: 92, facing: '+y', params: { cd: 22 } },
 
-  // ── Sypialnia: łóżko wezgłowiem do ściany lewej ──
-  { id: 'bed', type: 'bed', x: 103, y: 380, facing: '+x', params: { w: 160, l: 200, headH: 105 } },
-  { id: 'nightstandN', type: 'drawers', x: 20, y: 271, facing: '+x', params: { w: 45, d: 40, h: 50 } },
-  { id: 'nightstandS', type: 'drawers', x: 20, y: 489, facing: '+x', params: { w: 45, d: 40, h: 50 } },
-  { id: 'bedSpotN', type: 'wallSpot', x: 2, y: 271, z: 118, facing: '+x' },
-  { id: 'bedSpotS', type: 'wallSpot', x: 2, y: 489, z: 118, facing: '+x' },
-  { id: 'bedShelf', type: 'wallShelf', x: 10, y: 380, z: 150, facing: '+x', params: { w: 140, d: 20 } },
-  { id: 'bedRug', type: 'rug', x: 175, y: 380, facing: '+x', params: { w: 200, d: 140, mat: 'rugJute' } },
-  { id: 'bedPendant', type: 'pendantRattan', x: 110, y: 380, facing: '+y', params: { r: 26, drop: 70, ceiling: CEIL, cd: 40 } },
-  { id: 'bedPlant', type: 'model', x: 20, y: 489, z: 50, facing: '+x', params: { file: 'potted_plant_04.glb', height: 28, w: 20, d: 20, collide: false } },
+  // ── Sypialnia: łóżko 140×200 wezgłowiem do ściany lewej, dosunięte do okna (krawędź Y 505 = zasięg otwartego
+  //    skrzydła drzwi balkonowych), obok szafa przy tej samej ścianie; wejście od drzwi zostaje wolne ──
+  { id: 'bed', type: 'bed', x: 103, y: 432, facing: '+x', params: { w: 140, l: 200, headH: 105 } },
+  { id: 'bedWardrobe', type: 'wardrobe', x: 30, y: 296, facing: '+x', params: { w: 120, d: 60, h: CEIL } },
+  { id: 'nightstandS', type: 'drawers', x: 20, y: 527, facing: '+x', params: { w: 45, d: 40, h: 50 } },
+  { id: 'bedSpotN', type: 'wallSpot', x: 2, y: 372, z: 118, facing: '+x' },
+  { id: 'bedSpotS', type: 'wallSpot', x: 2, y: 492, z: 118, facing: '+x' },
+  { id: 'bedShelf', type: 'wallShelf', x: 10, y: 432, z: 150, facing: '+x', params: { w: 120, d: 20 } },
+  { id: 'bedRug', type: 'rug', x: 175, y: 432, facing: '+x', params: { w: 200, d: 140, mat: 'rugJute' } },
+  { id: 'bedPendant', type: 'pendantRattan', x: 110, y: 432, facing: '+y', params: { r: 26, drop: 70, ceiling: CEIL, cd: 40 } },
+  { id: 'bedPlant', type: 'model', x: 20, y: 527, z: 50, facing: '+x', params: { file: 'potted_plant_04.glb', height: 28, w: 20, d: 20, collide: false } },
 
   // ── Zasłony przy drzwiach balkonowych (zebrane po bokach, karnisz pod sufitem) ──
   { id: 'curtainBedL', type: 'curtain', x: 36, y: 559, facing: '-y', params: { w: 56, mat: 'curtainLinen', ceiling: CEIL } },

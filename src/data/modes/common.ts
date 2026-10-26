@@ -54,6 +54,7 @@ export const FURNITURE_BASE = {
   panelDark: { texture: 'walnut', tint: 0x9a7a62, roughness: 0.75 },
   blackFront: { color: 0x1c1c1d, roughness: 0.55 },
   stoneLight: { color: 0xd9d3c9, roughness: 0.35 },
+  wardrobeGreige: { color: 0xd8d2c9, roughness: 0.55 }, // fronty bezuchwytowe, jasny greige
   bedFabric: { texture: 'fabric', tint: 0xa79d91, roughness: 1, normalScale: 0.8 },
   cushionOat: { texture: 'fabric', tint: 0xcbbca6, roughness: 1 },
   cushionBlack: { texture: 'fabric', tint: 0x2b2a29, roughness: 1 },

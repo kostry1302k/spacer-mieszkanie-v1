@@ -51,7 +51,6 @@ const ASSETS: Asset[] = [
   { kind: 'texture', source: 'ambientcg', id: 'Fabric030', use: 'tapicerka – tkanina (sofa, łóżko)', resolutions: ['1k'] },
   { kind: 'texture', source: 'ambientcg', id: 'Carpet016', use: 'dywany', resolutions: ['1k'] },
   { kind: 'texture', source: 'ambientcg', id: 'Wicker008A', use: 'rattan – lampa wisząca (styl 1)', resolutions: ['1k'] },
-  { kind: 'model', source: 'polyhaven', id: 'potted_plant_02', use: 'roślina w doniczce (salon)' },
   { kind: 'model', source: 'polyhaven', id: 'potted_plant_04', use: 'mała roślina (łazienka, półki)' },
   { kind: 'hdri', source: 'polyhaven', id: 'noon_grass', use: 'niebo i otoczenie za oknami, światło otoczenia', resolutions: ['1k', '2k'] },
 ];

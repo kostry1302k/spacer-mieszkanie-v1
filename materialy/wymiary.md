@@ -55,7 +55,8 @@ Wymiary: 190 × 185 (X 160–350, Y 0–185). Od strony salonu hol jest otwarty 
 - Ś2 ścianka od kuchni (gr. 8, X 350–358): 185 – pełna.
 - Ś3 strona salonu: 190 – **otwarta, bez ściany**.
 - Ś4 ścianka od łazienki (gr. 10, X 150–160): 50 od ściany wejściowej otwór drzwi do łazienki **90 × 207** (Y 50–140), potem 91,5 do końca ścianki (Y 231,5 ≈ 232). Drzwi otwierają się na hol, zawiasy od strony ściany wejściowej (Y 50).
-Uwagi: prostokąt ok. 70 × 50 w narożniku przy ścianie wejściowej i łazience jest tylko na starszym rzucie budowlanym; na wykonawczym go nie ma – **nie modelujemy**. Szafy w holu na razie nie ma.
+Uwagi: prostokąt ok. 70 × 50 w narożniku przy ścianie wejściowej i łazience jest tylko na starszym rzucie budowlanym; na wykonawczym go nie ma – **nie modelujemy**.
+W wykończeniach (decyzja 26.10.2026): **szafa do sufitu 80 × 50** przy ścianie wejściowej, na lewo od drzwi (X 160–240, Y 0–50); otwarte skrzydło drzwi łazienki mieści się tuż przed nią (Y ≈ 56). Szafa przy ściance od kuchni zablokowałaby przejście z holu do salonu (zostawałoby 40 cm). Włącznik światła i domofon (orientacyjne) – na ściance od kuchni, za zasięgiem drzwi wejściowych.
 
 ## Łazienka (12M03) – 3,14 m²
 Wymiary: 150 × 222 (X 0–150, Y 0–222), w narożniku szacht 30 × 60.
@@ -133,13 +134,15 @@ Brak rzutu instalacji elektrycznej. W modelu przyjmujemy typowy układ i oznacza
 - Wnętrze: X 0–264,5, Y 232–579,5 → **264,5 × 347,5 = 9,19 m²**.
 - Okno/wyjście: drzwi balkonowe X 69,5–249,5 (180 × 235), skrzydło otwierane X 69,5–159,5 zamiata Y ok. 489,5–579,5.
 - Ściany zgodnie z ruchem wskazówek zegara, od drzwi: Ś1 od holu 264,5 (w tym 104,5 nowej ścianki z drzwiami i 160 ścianki łazienki) | Ś2 nowa ścianka 347,5 – pełna | Ś3 ściana balkonowa 264,5: 69,5 (grzejnik) | drzwi balkonowe 180 | 15 | Ś4 ściana lewa 347,5 – pełna.
-- Łóżko zagłówkiem do ściany lewej (długość 200 wzdłuż X) zostawia 64,5 cm przejścia do nowej ścianki – niezależnie od szerokości 140 czy 160. Łóżko musi kończyć się przed Y ok. 485 (skrzydło drzwi balkonowych) i zaczynać za Y ok. 240.
+- Łóżko zagłówkiem do ściany lewej (długość 200 wzdłuż X) zostawia 64,5 cm przejścia do nowej ścianki – niezależnie od szerokości 140 czy 160 (z wezgłowiem 6 cm: 58,5 cm).
+- W wykończeniach (decyzja 26.10.2026): **łóżko 140 × 200** (z ramą 146 × 206) dosunięte do okna – krawędź na Y ok. 505, tam gdzie kończy się otwarte skrzydło drzwi balkonowych; **szafa 120 × 60 do sufitu** obok łóżka przy ścianie lewej (Y 236–356). Wejście od drzwi sypialni zostaje wolne, otwarte skrzydło drzwi nie stoi już obok łóżka.
 
 **Salon z aneksem (po przebudowie)**
 - 23,47 − 9,19 (sypialnia) − 0,46 (nowe ścianki) = **ok. 13,82 m²**.
 - Wyjście na balkon: drzwi X 289,5–469,5.
 - Nowa ścianka od strony salonu: 357,5 – pełna (miejsce na TV lub sofę).
 - Kuchnia, hol i łazienka bez zmian.
+- Wyposażenie (decyzja 26.10.2026): sofa 160 przy ścianie prawej, kończy się przed polem skrzydła drzwi balkonowych (Y ok. 505); **stół kwadratowy 75 × 75 dosunięty do ściany prawej** (Y 228–303) z 3 krzesłami (od kuchni, od salonu, od sofy).
 
 **Różnice względem konceptu (nie przenosić do modelu)**
 - Koncept podaje salon ≈15,5 m² i sypialnię ≈8,0 m²; z wymiarów rzutu wychodzi 13,82 i 9,19 m².

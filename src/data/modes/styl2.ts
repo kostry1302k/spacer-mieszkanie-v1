@@ -36,19 +36,20 @@ export const styl2Furniture: FurnitureItem[] = [
   { id: 'tvLamellas', type: 'lamellaPanel', x: 276.5, y: 420, facing: '+x', params: { w: 200, h: 260, led: true, mat: 'oakLight' } },
   { id: 'tv', type: 'tv', x: 280.5, y: 420, z: 115, facing: '+x', params: { w: 123, h: 71 } },
   { id: 'tvCabinet', type: 'tvCabinet', x: 297.5, y: 420, facing: '+x', params: { w: 180, d: 38, h: 34, lift: 26, mat: 'oakLight', ledUnder: true } },
-  { id: 'sofa', type: 'sofa', x: 491.5, y: 393.5, facing: '-x', params: { w: 185, d: 95, accentA: 'cushionOat', accentB: 'cushionBlack' } },
-  { id: 'coffeeTable', type: 'coffeeTable', x: 397, y: 410, facing: '-x', params: { w: 64, h: 36, shape: 'round' } },
-  { id: 'livingRug', type: 'rug', x: 412, y: 410, facing: '-x', params: { w: 200, d: 150 } },
-  { id: 'floorLamp', type: 'floorLampShade', x: 515, y: 520, facing: '-x', params: { cd: 24 } },
-  { id: 'sofaArt', type: 'artFrame', x: 537.5, y: 393.5, z: 115, facing: '-x', params: { w: 70, h: 90 } },
-  { id: 'livingPlant', type: 'model', x: 512, y: 242, facing: '-x', params: { file: 'potted_plant_02.glb', height: 95, w: 50, d: 50 } },
+  // Sofa dosunięta w stronę okna – kończy się przed polem skrzydła drzwi balkonowych (Y ≈ 506).
+  { id: 'sofa', type: 'sofa', x: 491.5, y: 425, facing: '-x', params: { w: 160, d: 95, accentA: 'cushionOat', accentB: 'cushionBlack' } },
+  { id: 'coffeeTable', type: 'coffeeTable', x: 397, y: 425, facing: '-x', params: { w: 64, h: 36, shape: 'round' } },
+  { id: 'livingRug', type: 'rug', x: 412, y: 425, facing: '-x', params: { w: 200, d: 150 } },
+  { id: 'floorLamp', type: 'floorLampShade', x: 302, y: 532.5, facing: '+x', params: { cd: 24 } },
+  { id: 'sofaArt', type: 'artFrame', x: 537.5, y: 425, z: 115, facing: '-x', params: { w: 70, h: 90 } },
   { id: 'livingDownlight', type: 'downlight', x: 350, y: 480, facing: '+y', params: { cd: 22, mat: 'shelfWhite' } },
 
-  // ── Jadalnia ──
-  { id: 'diningTable', type: 'diningTable', x: 400, y: 272, facing: '+y', params: { r: 38, mat: 'oakLight' } },
-  { id: 'chairE', type: 'diningChair', x: 454, y: 272, facing: '-x', params: { mat: 'blackMatte', seat: 'upholstery' } },
-  { id: 'chairS', type: 'diningChair', x: 400, y: 326, facing: '-y', params: { mat: 'blackMatte', seat: 'upholstery' } },
-  { id: 'chandelier', type: 'chandelierGlobes', x: 400, y: 272, facing: '+y', params: { drop: 85, reach: 30, ceiling: CEIL, cd: 40 } },
+  // ── Jadalnia: kwadratowy stół 75×75 dosunięty do ściany prawej, 3 krzesła ──
+  { id: 'diningTable', type: 'diningTable', x: 501.5, y: 265.5, facing: '+y', params: { shape: 'square', w: 75, mat: 'oakLight', legs: 'blackMatte' } },
+  { id: 'chairN', type: 'diningChair', x: 501.5, y: 210, facing: '+y', params: { mat: 'blackMatte', seat: 'upholstery' } },
+  { id: 'chairW', type: 'diningChair', x: 446, y: 265.5, facing: '+x', params: { mat: 'blackMatte', seat: 'upholstery' } },
+  { id: 'chairS', type: 'diningChair', x: 501.5, y: 321, facing: '-y', params: { mat: 'blackMatte', seat: 'upholstery' } },
+  { id: 'chandelier', type: 'chandelierGlobes', x: 501.5, y: 265.5, facing: '+y', params: { drop: 85, reach: 28, ceiling: CEIL, cd: 40 } },
 
   // ── Kuchnia: dolne fronty orzech, górne czarne (jedna szafka z ryflowanym szkłem), ciemny kamień, reling ──
   { id: 'fridge', type: 'fridgeColumn', x: 388, y: 30, facing: '+y', params: { front: 'walnut' } },
@@ -65,20 +66,20 @@ export const styl2Furniture: FurnitureItem[] = [
   { id: 'kitchenDownlight', type: 'downlight', x: 440, y: 105, facing: '+y', params: { cd: 25 } },
 
   // ── Hol ──
-  { id: 'hallConsole', type: 'consoleTable', x: 335, y: 145, facing: '-x', params: { w: 80, d: 30, mat: 'oakLight' } },
-  { id: 'hallMirror', type: 'mirrorRect', x: 349, y: 145, z: 95, facing: '-x', params: { w: 60, h: 100 } },
+  // Szafa do sufitu przy ścianie wejściowej, na lewo od drzwi (jak w stylu 1).
+  { id: 'hallWardrobe', type: 'wardrobe', x: 200, y: 25, facing: '+y', params: { w: 80, d: 50, h: CEIL, doors: 2, front: 'wardrobeGreige' } },
   { id: 'hallDownlight', type: 'downlight', x: 255, y: 92, facing: '+y', params: { cd: 22, mat: 'shelfWhite' } },
 
-  // ── Sypialnia: boazeria za tapicerowanym łóżkiem, ciemne szafki nocne ──
-  { id: 'bedPanel', type: 'wallPanel', x: 0.5, y: 380, facing: '+x', params: { w: 270, h: CEIL, t: 1, mat: 'panelDark' } },
-  { id: 'bed', type: 'bed', x: 103, y: 380, facing: '+x', params: { w: 160, l: 200, headH: 110, frame: 'bedFabric', upholstered: true, pillow: 'cushionOat' } },
-  { id: 'nightstandN', type: 'drawers', x: 21, y: 271, facing: '+x', params: { w: 45, d: 40, h: 50, mat: 'blackMatte' } },
-  { id: 'nightstandS', type: 'drawers', x: 21, y: 489, facing: '+x', params: { w: 45, d: 40, h: 50, mat: 'blackMatte' } },
-  { id: 'bedSpotN', type: 'wallSpot', x: 3, y: 271, z: 118, facing: '+x', params: { mat: 'blackMetal' } },
-  { id: 'bedSpotS', type: 'wallSpot', x: 3, y: 489, z: 118, facing: '+x', params: { mat: 'blackMetal' } },
-  { id: 'bedRug', type: 'rug', x: 175, y: 380, facing: '+x', params: { w: 200, d: 140 } },
-  { id: 'bedDownlight', type: 'downlight', x: 132, y: 405, facing: '+y', params: { cd: 32, mat: 'shelfWhite' } },
-  { id: 'bedPlant', type: 'model', x: 21, y: 489, z: 50, facing: '+x', params: { file: 'potted_plant_04.glb', height: 28, w: 20, d: 20, collide: false } },
+  // ── Sypialnia: łóżko 140×200 dosunięte do okna, boazeria za łóżkiem, obok szafa bezuchwytowa ──
+  { id: 'bedPanel', type: 'wallPanel', x: 0.5, y: 450, facing: '+x', params: { w: 190, h: CEIL, t: 1, mat: 'panelDark' } },
+  { id: 'bed', type: 'bed', x: 103, y: 432, facing: '+x', params: { w: 140, l: 200, headH: 110, frame: 'bedFabric', upholstered: true, pillow: 'cushionOat' } },
+  { id: 'bedWardrobe', type: 'wardrobe', x: 30, y: 296, facing: '+x', params: { w: 120, d: 60, h: CEIL, front: 'wardrobeGreige' } },
+  { id: 'nightstandS', type: 'drawers', x: 21, y: 527, facing: '+x', params: { w: 45, d: 40, h: 50, mat: 'blackMatte' } },
+  { id: 'bedSpotN', type: 'wallSpot', x: 3, y: 372, z: 118, facing: '+x', params: { mat: 'blackMetal' } },
+  { id: 'bedSpotS', type: 'wallSpot', x: 3, y: 492, z: 118, facing: '+x', params: { mat: 'blackMetal' } },
+  { id: 'bedRug', type: 'rug', x: 175, y: 432, facing: '+x', params: { w: 200, d: 140 } },
+  { id: 'bedDownlight', type: 'downlight', x: 110, y: 432, facing: '+y', params: { cd: 32, mat: 'shelfWhite' } },
+  { id: 'bedPlant', type: 'model', x: 21, y: 527, z: 50, facing: '+x', params: { file: 'potted_plant_04.glb', height: 28, w: 20, d: 20, collide: false } },
 
   // ── Zasłony: lniane firany i zasłony taupe ──
   { id: 'curtainBedL', type: 'curtain', x: 36, y: 559, facing: '-y', params: { w: 56, mat: 'curtainLinen', ceiling: CEIL } },
