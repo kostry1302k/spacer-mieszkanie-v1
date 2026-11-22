@@ -85,7 +85,7 @@ export const styl1Furniture: FurnitureItem[] = [
 
   // ── Hol (plansza 08): szafa z lamel przy ścianie wejściowej, lustro 60 × 180 na ściance od kuchni ──
   { id: 'hallWardrobe', type: 'wardrobe', x: 200, y: 25, facing: '+y', params: { w: 80, d: 50, h: CEIL, doors: 2, fronts: 'lamella' } },
-  { id: 'hallMirror', type: 'mirrorRect', x: 348.8, y: 150, z: 20, facing: '-x', params: { w: 60, h: 180 } },
+  { id: 'hallMirror', type: 'mirrorRect', x: 348.8, y: 150, z: 20, facing: '-x', params: { w: 60, h: 180 }, variants: ['hallLong'] }, // na pełnej ściance od kuchni
   { id: 'hallLight1', type: 'downlight', x: 254, y: 85, facing: '+y', params: { noLight: true } },
   { id: 'hallLight2', type: 'downlight', x: 254, y: 151, facing: '+y', params: { cd: 26 } },
   { id: 'hallLight3', type: 'downlight', x: 212, y: 205, facing: '+y', params: { noLight: true } }, // nad wejściem do sypialni

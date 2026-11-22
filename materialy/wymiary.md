@@ -52,7 +52,7 @@ Wymiary wewnętrzne w cm, w świetle tynku.
 Wymiary: 190 × 185 (X 160–350, Y 0–185). Od strony salonu hol jest otwarty (bez ściany).
 Ściany zgodnie z ruchem wskazówek zegara, od drzwi wejściowych:
 - Ś1 ściana wejściowa: 190 – 80 od ścianki łazienki otwór drzwi wejściowych **105 × 210** (X 240–345), potem 5 do ścianki kuchni. Drzwi EI 30, skrzydło otwiera się do środka, zawiasy po stronie kuchni (X 345).
-- Ś2 ścianka od kuchni (gr. 8, X 350–358): 185 – pełna.
+- Ś2 ścianka od kuchni (gr. 8, X 350–358): 185 – pełna. **Opcja „krótka ścianka”** (przełącznik w każdym trybie): zostaje tylko 60 (Y 0–60), tyle co głębokość lodówki; pas X 350–358, Y 60–185 dochodzi do holu (3,62 m²), włącznik i domofon przenoszą się na ściankę łazienki (X 160, Y 176 i 200), bo na krótkiej ściance zasłaniałyby je otwarte drzwi wejściowe.
 - Ś3 strona salonu: 190 – **otwarta, bez ściany**.
 - Ś4 ścianka od łazienki (gr. 10, X 150–160): 50 od ściany wejściowej otwór drzwi do łazienki **90 × 207** (Y 50–140), potem 91,5 do końca ścianki (Y 231,5 ≈ 232). Drzwi otwierają się na hol, zawiasy od strony ściany wejściowej (Y 50).
 Uwagi: prostokąt ok. 70 × 50 w narożniku przy ścianie wejściowej i łazience jest tylko na starszym rzucie budowlanym; na wykonawczym go nie ma – **nie modelujemy**.
@@ -106,7 +106,7 @@ Brak rzutu instalacji elektrycznej. W modelu przyjmujemy typowy układ i oznacza
 - Szacht łazienkowy: X 0–30, Y 0–60.
 - Łazienka: X 0–150, Y 0–222; ścianka od holu X 150–160 (Y 0–232); ścianka od salonu Y 222–232 (X 0–160).
 - Hol: X 160–350, Y 0–185; od Y 185 otwarty na pokój dzienny.
-- Ścianka hol/kuchnia: X 350–358, Y 0–185.
+- Ścianka hol/kuchnia: X 350–358, Y 0–185 (opcja krótka: Y 0–60).
 - Szacht kuchenny: X 479–539, Y 0–60.
 - Kuchnia: X 358–479 przy ścianie wejściowej (Y 0–60) i X 479–539 przy ścianie prawej (Y 60–185).
 - Drzwi wejściowe: ściana Y 0, X 240–345, wys. 210.
@@ -152,3 +152,4 @@ Brak rzutu instalacji elektrycznej. W modelu przyjmujemy typowy układ i oznacza
 
 ## Historia zmian
 - 25.10.2026: przejście z rzutu budowlanego 1:100 na wykonawczy 1:50. Zmiany: głębokość 569 → 579,5; łazienka 150 × 209 → 150 × 222 z szachtem 30 × 60; uskok łazienki 34 → 47; drzwi łazienki Y 60–150 → 50–140; drzwi wejściowe X 237–342 → 240–345; szacht kuchenny 58 × 25 → 60 × 60; kuchnia bez dodatkowej szafki; balkon 148 → 144 (5,76 m²); ściana balkonowa 39,5; nowa ścianka od Y 222, sypialnia 9,19 m²; orientacja: balkon na południe; grzejniki przy drzwiach balkonowych; elektryka orientacyjna.
+- 22.11.2026 (decyzja właściciela): opcja krótkiej ścianki hol/kuchnia – 60 cm (X 350–358, Y 0–60), zasłania bok lodówki; reszta ścianki usunięta. Włączana przełącznikiem w spacerze, w każdym trybie; domyślnie pełna ścianka 185.

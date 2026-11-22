@@ -4,7 +4,7 @@ import { inVariant, polygonArea, wallAxis, wallsFor } from '../src/core/plan.ts'
 import type { Variant, Wall } from '../src/data/types.ts';
 
 const AREA_TOLERANCE = 0.05; // m²
-const variants: Variant[] = ['developer', 'rebuild'];
+const variants: Variant[] = ['developer+hallLong', 'developer+hallShort', 'rebuild+hallLong', 'rebuild+hallShort'];
 const errors: string[] = [];
 const fail = (msg: string) => errors.push(msg);
 
@@ -78,7 +78,7 @@ for (const r of ap.rooms) {
 }
 
 // Suma lokalu (bez balkonu) w wariancie deweloperskim: 30,12 m².
-const total = ap.rooms.filter((r) => !r.outdoor && inVariant(r, 'developer')).reduce((s, r) => s + polygonArea(r.polygon), 0);
+const total = ap.rooms.filter((r) => !r.outdoor && inVariant(r, 'developer+hallLong')).reduce((s, r) => s + polygonArea(r.polygon), 0);
 console.log(`  suma (stan deweloperski): ${total.toFixed(2)} m² (rzut: 30,12)`);
 if (Math.abs(total - 30.12) > AREA_TOLERANCE * 2) fail(`suma powierzchni ${total.toFixed(2)} ≠ 30,12`);
 

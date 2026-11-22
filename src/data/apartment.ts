@@ -25,7 +25,9 @@ export const apartment: Apartment = {
     // Ścianki działowe stanu deweloperskiego.
     { id: 'bathHall', kind: 'partition', x0: 150, y0: 0, x1: 160, y1: 232 },
     { id: 'bathLiving', kind: 'partition', x0: 0, y0: 222, x1: 150, y1: 232 },
-    { id: 'hallKitchen', kind: 'partition', x0: 350, y0: 0, x1: 358, y1: 185 },
+    { id: 'hallKitchen', kind: 'partition', x0: 350, y0: 0, x1: 358, y1: 185, variants: ['hallLong'] },
+    // Opcja (przełącznik w każdym trybie): krótka ścianka 60 cm – zasłania bok lodówki, reszta otwarta na kuchnię.
+    { id: 'hallKitchenShort', kind: 'partition', x0: 350, y0: 0, x1: 358, y1: 60, variants: ['hallShort'] },
 
     // Przebudowa: ścianka z drzwiami sypialni i ścianka wzdłużna na osi filara.
     { id: 'bedroomFront', kind: 'newPartition', x0: 160, y0: 222, x1: 264.5, y1: 232, variants: ['rebuild'] },
@@ -60,6 +62,17 @@ export const apartment: Apartment = {
       polygon: [[160, 0], [350, 0], [350, 185], [160, 185]],
       expectedArea: 3.51,
       spawn: { x: 290, y: 40, yaw: 0 },
+      variants: ['hallLong'],
+    },
+    {
+      // Hol przy krótkiej ściance: dochodzi pas po usuniętej części ścianki (X 350–358, Y 60–185).
+      id: 'holOtwarty',
+      kind: 'hall',
+      name: 'Hol',
+      polygon: [[160, 0], [350, 0], [350, 60], [358, 60], [358, 185], [160, 185]],
+      expectedArea: 3.62,
+      spawn: { x: 290, y: 40, yaw: 0 },
+      variants: ['hallShort'],
     },
     {
       id: 'lazienka',
@@ -117,8 +130,11 @@ export const apartment: Apartment = {
   fixtures: [
     // Hol
     // Włącznik i domofon na ściance od kuchni, za zasięgiem otwartych drzwi wejściowych (przy ścianie wejściowej stoi szafa).
-    { id: 'hallSwitch', type: 'switch', x: 350, y: 108, z: 105, facing: '-x', approximate: true },
-    { id: 'intercom', type: 'intercom', x: 350, y: 108, z: 145, facing: '-x', approximate: true },
+    { id: 'hallSwitch', type: 'switch', x: 350, y: 108, z: 105, facing: '-x', approximate: true, variants: ['hallLong'] },
+    { id: 'intercom', type: 'intercom', x: 350, y: 108, z: 145, facing: '-x', approximate: true, variants: ['hallLong'] },
+    // Krótka ścianka: na niej zasłaniałyby je otwarte drzwi wejściowe – idą na ściankę łazienki, obok jej włącznika.
+    { id: 'hallSwitchShort', type: 'switch', x: 160, y: 176, z: 105, facing: '+x', approximate: true, variants: ['hallShort'] },
+    { id: 'intercomShort', type: 'intercom', x: 160, y: 200, z: 145, facing: '+x', approximate: true, variants: ['hallShort'] },
     { id: 'panel', type: 'panel', x: 160, y: 168, z: 170, facing: '+x', approximate: true },
     { id: 'bathSwitch', type: 'switch', x: 160, y: 155, z: 110, facing: '+x', approximate: true },
     { id: 'hallCeiling', type: 'ceilingOutlet', x: 255, y: 92.5, z: H, facing: 'down', approximate: true },

@@ -16,6 +16,7 @@ Plan prac w etapach: [PLAN.md](PLAN.md).
 - Wymiary z rzutu wykonawczego: 539 × 579,5, wysokość 270 we wszystkich trybach.
 - Balkon na **południe** (+Y = południe). Słońce realne dla Warszawy (52,2° N), domyślnie dzień w październiku.
 - Tryb surowy = stan deweloperski + przełącznik „pokaż nową ściankę”. Wykończenia = zawsze wariant po przebudowie (sypialnia 9,19 m²).
+- Ścianka hol/kuchnia (22.11.2026): przełącznik „Krótka ścianka przy lodówce (60 cm)” w każdym trybie. Wariant to para `układ+ścianka` (np. `rebuild+hallShort`); elementy danych mają znaczniki `variants: ['hallLong' | 'hallShort' | 'developer' | 'rebuild']` – istnieją, gdy wariant zawiera którykolwiek z nich (też meble, np. lustro na pełnej ściance).
 - Łazienka: walk-in 90 × 80 z czarnym profilem, WC, umywalka, pralka. Bez wanny i suszarki.
 - Kuchnia w układzie deweloperskim (L wokół szachtu).
 - Wyposażenie wykończeń (26.10.2026): sypialnia – łóżko 140 × 200 przy oknie i szafa 120 × 60 do sufitu obok; salon – sofa 160, stół kwadratowy 75 × 75 przy ścianie prawej z 3 krzesłami; hol – szafa 80 × 50 do sufitu przy ścianie wejściowej (szczegóły w wymiary.md).

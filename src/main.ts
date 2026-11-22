@@ -22,6 +22,7 @@ import { Minimap } from './ui/minimap';
 import { WalkHud } from './ui/hud';
 import { createViewPanel } from './ui/viewPanel';
 import { Store, type AppState, type AppView } from './core/state';
+import { inVariant } from './core/plan';
 import { MaterialLibrary } from './core/assets';
 import { createFpsMeter, isDebug } from './core/debug';
 import { AdaptiveQuality, isTouchDevice as isTouch, qualityProfile } from './core/quality';
@@ -38,8 +39,9 @@ const lighting = new Lighting(apartment, scene, renderer, qualityProfile.shadowM
 scene.add(lighting.group);
 
 const availableViews: AppView[] = ['walk', 'orbit', 'top'];
-const store = new Store<AppState>({ mode: 'raw', view: 'walk', time: 'day', rebuild: false, ceiling: false, labels: true });
-const variantOf = (s: AppState): Variant => MODES[s.mode].variant ?? (s.rebuild ? 'rebuild' : 'developer');
+const store = new Store<AppState>({ mode: 'raw', view: 'walk', time: 'day', rebuild: false, hallShort: false, ceiling: false, labels: true });
+const variantOf = (s: AppState): Variant =>
+  `${MODES[s.mode].variant ?? (s.rebuild ? 'rebuild' : 'developer')}+${s.hallShort ? 'hallShort' : 'hallLong'}`;
 
 // Widoki: spacer (kamera na wysokości oczu) i makieta (orbita / z góry).
 const walkCamera = new THREE.PerspectiveCamera(70, 1, 0.05, 100);
@@ -168,7 +170,7 @@ function rebuild(): void {
   doors.setLeaves(model.leaves);
   colliders = staticColliders(apartment, variant);
   if (def.furniture.length) {
-    furniture = placeFurniture(def.furniture, materials, models);
+    furniture = placeFurniture(def.furniture.filter((f) => inVariant(f, variant)), materials, models);
     scene.add(furniture.group);
     colliders.push(...furniture.colliders);
   }

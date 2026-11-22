@@ -1,5 +1,5 @@
 import type { MaterialSpec, SurfaceKey } from '../../scene/materials';
-import type { FurnitureItem, Variant } from '../types';
+import type { FurnitureItem, Layout } from '../types';
 import type { CeilingFixture } from '../../geometry/fixtures';
 import { FURNITURE_BASE } from './common';
 import { rawMaterials } from './raw';
@@ -16,7 +16,7 @@ export interface ModeDefinition {
   /** Powierzchnie architektury + paleta mebli. */
   materials: Record<SurfaceKey, MaterialSpec> & Record<string, MaterialSpec>;
   /** Wariant układu narzucony przez tryb; null = użytkownik przełącza „nową ściankę”. */
-  variant: Variant | null;
+  variant: Layout | null;
   interiorDoors: boolean;
   /** Gołe żarówki na wypustach (stan surowy); w wykończeniach lampy są meblami. */
   ceilingFixture: CeilingFixture;

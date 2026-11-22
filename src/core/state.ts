@@ -10,6 +10,8 @@ export interface AppState {
   time: TimeOfDay;
   /** Nowa ścianka w stanie surowym (w wykończeniach zawsze jest). */
   rebuild: boolean;
+  /** Krótka (60 cm) ścianka hol/kuchnia zamiast pełnej – w każdym trybie. */
+  hallShort: boolean;
   ceiling: boolean;
   labels: boolean;
 }

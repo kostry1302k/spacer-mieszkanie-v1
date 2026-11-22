@@ -2,13 +2,13 @@ import { MODES, type ModeId } from '../data/modes';
 import type { AppState, AppView, Store } from '../core/state';
 import type { TimeOfDay } from '../scene/lighting';
 
-type ToggleKey = 'rebuild' | 'ceiling' | 'labels';
+type ToggleKey = 'rebuild' | 'hallShort' | 'ceiling' | 'labels';
 
 const VIEW_LABELS: Record<AppView, string> = { walk: 'Spacer', orbit: 'Makieta', top: 'Z góry' };
 
 /**
  * Panel: tryb (surowy / styl 1 / styl 2), widok (spacer / makieta / z góry), pora dnia,
- * nowa ścianka (tylko w stanie surowym) i opcje makiety.
+ * nowa ścianka (tylko w stanie surowym), krótka ścianka przy lodówce (każdy tryb) i opcje makiety.
  * Na telefonie zwinięty pod przyciskiem „Menu”, żeby nie zasłaniał joysticka.
  */
 export function createViewPanel(store: Store<AppState>, views: AppView[], collapsed: boolean): HTMLElement {
@@ -28,6 +28,7 @@ export function createViewPanel(store: Store<AppState>, views: AppView[], collap
       <button type="button" data-time="evening">☾ Wieczór</button>
     </div>
     <label class="raw-only"><input type="checkbox" data-key="rebuild"> Nowa ścianka (przebudowa)</label>
+    <label><input type="checkbox" data-key="hallShort"> Krótka ścianka przy lodówce (60 cm)</label>
     <label class="mockup-only"><input type="checkbox" data-key="ceiling"> Sufit</label>
     <label class="mockup-only"><input type="checkbox" data-key="labels"> Nazwy i metraże</label>
   `;

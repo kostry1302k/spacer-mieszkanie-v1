@@ -1,8 +1,14 @@
 // Typy danych mieszkania. Wszystkie wymiary w centymetrach, w układzie z materialy/wymiary.md:
 // X w prawo wzdłuż ściany wejściowej, Y w głąb w stronę balkonu, Z (wysokość) od podłogi.
 
-/** Wariant układu: stan deweloperski albo po przebudowie (nowa ścianka i sypialnia). */
-export type Variant = 'developer' | 'rebuild';
+/** Układ: stan deweloperski albo po przebudowie (nowa ścianka i sypialnia). */
+export type Layout = 'developer' | 'rebuild';
+/** Ścianka hol/kuchnia: pełna (185) albo krótka (60, zasłania bok lodówki). */
+export type HallWall = 'hallLong' | 'hallShort';
+/** Wariant sceny = układ + ścianka w holu, np. 'rebuild+hallShort'. */
+export type Variant = `${Layout}+${HallWall}`;
+/** Znacznik elementu w `variants`: element istnieje, gdy wariant zawiera którykolwiek ze znaczników. */
+export type VariantTag = Layout | HallWall;
 
 export type Point = readonly [x: number, y: number];
 
@@ -23,7 +29,7 @@ export interface Wall {
   x1: number;
   y1: number;
   /** Brak = ściana w obu wariantach. */
-  variants?: Variant[];
+  variants?: VariantTag[];
 }
 
 /** Otwór w ścianie, mierzony wzdłuż dłuższej osi ściany, we współrzędnych bezwzględnych. */
@@ -68,7 +74,7 @@ export interface Room {
   /** Punkt startowy spaceru i kierunek patrzenia (stopnie, 0 = w stronę +Y, czyli balkonu). */
   spawn: { x: number; y: number; yaw: number };
   outdoor?: boolean;
-  variants?: Variant[];
+  variants?: VariantTag[];
 }
 
 export interface Radiator {
@@ -95,7 +101,7 @@ export interface Fixture {
   z: number;
   facing: Facing;
   approximate: true;
-  variants?: Variant[];
+  variants?: VariantTag[];
 }
 
 /** Mebel / element wyposażenia z danych trybu. Builder wg `type` (src/furniture/builders). */
@@ -110,6 +116,8 @@ export interface FurnitureItem {
   /** Wysokość podstawy nad podłogą (np. szafki wiszące, telewizor). */
   z?: number;
   params?: Record<string, number | string | boolean>;
+  /** Brak = mebel w każdym wariancie (np. lustro na ściance, której w innym wariancie nie ma). */
+  variants?: VariantTag[];
 }
 
 export interface Balcony {

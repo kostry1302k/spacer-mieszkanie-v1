@@ -1,5 +1,5 @@
 // Pomocnicze obliczenia na danych rzutu (cm). Bez zależności – używane też przez scripts/check-data.ts.
-import type { Apartment, Point, Variant, Wall } from '../data/types';
+import type { Apartment, Point, Variant, VariantTag, Wall } from '../data/types';
 
 /** Pole wielokąta w m² (wzór Gaussa, wejście w cm). */
 export function polygonArea(polygon: readonly Point[]): number {
@@ -28,8 +28,9 @@ export function polygonCentroid(polygon: readonly Point[]): Point {
   return [cx / (3 * a), cy / (3 * a)];
 }
 
-export function inVariant(item: { variants?: Variant[] }, variant: Variant): boolean {
-  return !item.variants || item.variants.includes(variant);
+export function inVariant(item: { variants?: VariantTag[] }, variant: Variant): boolean {
+  const tags = variant.split('+');
+  return !item.variants || item.variants.some((t) => tags.includes(t));
 }
 
 /** Oś, wzdłuż której biegnie ściana (dłuższy bok prostokąta). */
